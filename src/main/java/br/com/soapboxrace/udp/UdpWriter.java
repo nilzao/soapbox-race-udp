@@ -33,14 +33,20 @@ public class UdpWriter {
 	}
 
 	private boolean isSessionPacket() {
-		// TODO detect 1st session packet
+		int pos = sendData.length - 10;
+		if (sendData[pos++] == sessionId[0] && sendData[pos++] == sessionId[1] && sendData[pos++] == sessionId[2]
+				&& sendData[pos++] == sessionId[3]) {
+			return true;
+		}
 		return false;
 	}
 
 	private void handShake() {
-		if (this.isSessionPacket()) {
+		if (this.isSessionPacket() && seqHandshake == 0) {
+			this.sendData[(this.sendData.length - 6)] = 3;
 			handShakePacket = this.sendData;
-			handShakePacket[(this.sendData.length - 6)] = 3;
+			handShakePacket[4] = (byte) 0xa9;
+			this.sendPacket();
 			seqHandshake++;
 		}
 		if (seqHandshake > 0 && seqHandshake < 10) {
@@ -69,9 +75,7 @@ public class UdpWriter {
 	public void send(byte[] sendData) {
 		this.sendData = sendData;
 		this.handShake();
-		if (seqHandshake > 10) {
-			this.setCountData();
-		}
+		this.setCountData();
 		this.sendPacket();
 	}
 
