@@ -4,6 +4,7 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 
 public class UdpWriter {
 	private DatagramSocket serverSocket;
@@ -14,10 +15,14 @@ public class UdpWriter {
 	private byte[] sendData;
 	private byte[] clientHello;
 	private byte clientIdx;
+	private byte[] helloOk;
+	private byte[] sessionId;
 
 	public UdpWriter(DatagramSocket serverSocket, DatagramPacket receivePacket, byte[] clientHello) {
 		this.serverSocket = serverSocket;
 		this.clientHello = clientHello;
+		this.helloOk = Arrays.copyOfRange(clientHello, 5, 9);
+		this.sessionId = Arrays.copyOfRange(clientHello, 9, 13);
 		setClientIdx();
 		if (receivePacket != null) {
 			this.ipAddress = receivePacket.getAddress();
@@ -66,11 +71,19 @@ public class UdpWriter {
 	}
 
 	private void setClientIdx() {
-		this.clientIdx = clientHello[6];
+		this.clientIdx = clientHello[4];
 	}
 
 	public byte getClientIdx() {
 		return clientIdx;
+	}
+
+	public byte[] getHelloOk() {
+		return helloOk;
+	}
+
+	public byte[] getSessionId() {
+		return sessionId;
 	}
 
 }
