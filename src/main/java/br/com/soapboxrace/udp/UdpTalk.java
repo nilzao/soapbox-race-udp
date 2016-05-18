@@ -41,16 +41,6 @@ public class UdpTalk {
 		return udpTalk;
 	}
 
-	private static byte[] hexStringToByteArray(String s) {
-		s = s.replace(":", "");
-		int len = s.length();
-		byte[] data = new byte[len / 2];
-		for (int i = 0; i < len; i += 2) {
-			data[i / 2] = (byte) ((Character.digit(s.charAt(i), 16) << 4) + Character.digit(s.charAt(i + 1), 16));
-		}
-		return data;
-	}
-
 	private static byte[] getBytes(DatagramPacket receivePacket) {
 		int length = receivePacket.getLength();
 		byte[] data = new byte[length];
@@ -67,7 +57,16 @@ public class UdpTalk {
 			udpWriter = new UdpWriter(UdpServer.getServerSocket(), receivePacket, receivedData);
 			udpWriters.put(port, udpWriter);
 			System.out.println("client added: " + port);
-			byte[] helloBytes = hexStringToByteArray("00:00:00:01:aa:bb:cc:dd:01:01:01:01");
+			byte[] helloBytes = new byte[12];
+			byte[] helloOk = udpWriter.getHelloOk();
+			helloBytes[4] = helloOk[0];
+			helloBytes[5] = helloOk[1];
+			helloBytes[6] = helloOk[2];
+			helloBytes[7] = helloOk[3];
+			helloBytes[8] = 1;
+			helloBytes[9] = 1;
+			helloBytes[10] = 1;
+			helloBytes[11] = 1;
 			udpWriter.send(helloBytes);
 		}
 		return udpWriter;
