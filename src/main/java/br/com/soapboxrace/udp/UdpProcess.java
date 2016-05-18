@@ -21,7 +21,6 @@ public class UdpProcess {
 		for (int i = 4; i < data.length; i++) {
 			dataTmp[iDataTmp++] = data[i];
 		}
-		dataTmp[(dataTmp.length - 6)] = 3;
 		return dataTmp;
 	}
 

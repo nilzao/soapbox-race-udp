@@ -12,16 +12,18 @@ public class UdpWriter {
 	private int port;
 	private short seqTypeA = 1;
 	private short seqTypeB = 0;
+	private short seqHandshake = 0;
 	private byte[] sendData;
 	private byte[] clientHello;
 	private byte clientIdx;
-	private byte[] helloOk;
+	private byte[] helloPacket;
 	private byte[] sessionId;
+	private byte[] handShakePacket;
 
 	public UdpWriter(DatagramSocket serverSocket, DatagramPacket receivePacket, byte[] clientHello) {
 		this.serverSocket = serverSocket;
 		this.clientHello = clientHello;
-		this.helloOk = Arrays.copyOfRange(clientHello, 5, 9);
+		this.helloPacket = Arrays.copyOfRange(clientHello, 5, 9);
 		this.sessionId = Arrays.copyOfRange(clientHello, 9, 13);
 		setClientIdx();
 		if (receivePacket != null) {
@@ -30,10 +32,30 @@ public class UdpWriter {
 		}
 	}
 
-	public void send(byte[] sendData) {
-		this.sendData = sendData;
+	private boolean isSessionPacket() {
+		// TODO detect 1st session packet
+		return false;
+	}
+
+	private void handShake() {
+		if (this.isSessionPacket()) {
+			handShakePacket = this.sendData;
+			handShakePacket[(this.sendData.length - 6)] = 3;
+			seqHandshake++;
+		}
+		if (seqHandshake > 0 && seqHandshake < 10) {
+			sendPacket();
+			seqHandshake++;
+		}
+		if (seqHandshake == 10) {
+			this.sendData = handShakePacket;
+			sendPacket();
+			seqHandshake++;
+		}
+	}
+
+	private void sendPacket() {
 		try {
-			this.setCountData();
 			DatagramPacket sendPacket = new DatagramPacket(this.sendData, this.sendData.length, ipAddress, port);
 			System.out.print("sending: ");
 			String byteArrayToHexString = UdpTalk.byteArrayToHexString(this.sendData);
@@ -42,6 +64,15 @@ public class UdpWriter {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+
+	public void send(byte[] sendData) {
+		this.sendData = sendData;
+		this.handShake();
+		if (seqHandshake > 10) {
+			this.setCountData();
+		}
+		this.sendPacket();
 	}
 
 	private void setCountData() {
@@ -78,8 +109,8 @@ public class UdpWriter {
 		return clientIdx;
 	}
 
-	public byte[] getHelloOk() {
-		return helloOk;
+	public byte[] getHelloPacket() {
+		return helloPacket;
 	}
 
 	public byte[] getSessionId() {

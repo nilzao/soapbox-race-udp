@@ -58,11 +58,11 @@ public class UdpTalk {
 			udpWriters.put(port, udpWriter);
 			System.out.println("client added: " + port);
 			byte[] helloBytes = new byte[12];
-			byte[] helloOk = udpWriter.getHelloOk();
-			helloBytes[4] = helloOk[0];
-			helloBytes[5] = helloOk[1];
-			helloBytes[6] = helloOk[2];
-			helloBytes[7] = helloOk[3];
+			byte[] helloPacket = udpWriter.getHelloPacket();
+			helloBytes[4] = helloPacket[0];
+			helloBytes[5] = helloPacket[1];
+			helloBytes[6] = helloPacket[2];
+			helloBytes[7] = helloPacket[3];
 			helloBytes[8] = 1;
 			helloBytes[9] = 1;
 			helloBytes[10] = 1;
