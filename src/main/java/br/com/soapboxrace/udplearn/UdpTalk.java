@@ -6,6 +6,10 @@ public class UdpTalk {
 
 	private byte clientSessionIdx;
 
+	private byte[] helloPacket;
+
+	private UdpSession udpSession;
+
 	public static UdpTalk startTalk(DatagramPacket receivePacket) {
 		return null;
 	}
