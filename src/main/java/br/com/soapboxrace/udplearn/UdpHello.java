@@ -130,8 +130,8 @@ public class UdpHello {
 
 		public void run() {
 			try {
-				Thread.sleep(10000);
-				udpTalk.sendSync();
+				Thread.sleep(15000);
+				udpTalk.getUdpSession().broadcastSyncPackets();
 			} catch (Exception e) {
 				System.out.println(e.getMessage());
 			}

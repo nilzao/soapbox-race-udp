@@ -26,15 +26,28 @@ public class UdpSession {
 		udpTalkers.put(clientSessionIdx, udpTalk);
 	}
 
-	public void broadcast(UdpTalk udpTalk, DataPacket dataPacket) {
+	public void broadcast(UdpTalk udpTalk, byte[] dataPacket) {
 		Iterator<Entry<Integer, UdpTalk>> iterator = udpTalkers.entrySet().iterator();
 		while (iterator.hasNext()) {
 			Entry<Integer, UdpTalk> next = iterator.next();
 			Integer key = next.getKey();
 			if (udpTalk.getSessionClientIdx() != key) {
 				UdpTalk udpTalkTmp = next.getValue();
-				DataPacket transformPacket = dataPacket;
-				udpTalkTmp.sendFrom(udpTalk, transformPacket.getDataBytes());
+				udpTalkTmp.sendFrom(udpTalk, dataPacket);
+			}
+		}
+	}
+
+	public void broadcastSyncPackets() {
+		Iterator<Entry<Integer, UdpTalk>> iterator = udpTalkers.entrySet().iterator();
+		while (iterator.hasNext()) {
+			Entry<Integer, UdpTalk> next = iterator.next();
+			UdpTalk udpTalkTmp = next.getValue();
+			try {
+				byte[] syncPacket = udpTalkTmp.getSyncPacket();
+				broadcast(udpTalkTmp, syncPacket);
+			} catch (Exception e) {
+				System.err.println(e.getMessage());
 			}
 		}
 	}

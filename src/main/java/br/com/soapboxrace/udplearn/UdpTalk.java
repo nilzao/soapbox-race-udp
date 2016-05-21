@@ -12,6 +12,7 @@ public class UdpTalk {
 	private UdpWriter udpWriter;
 	private int sessionId;
 	private byte[] incomeSyncPacket;
+	private boolean isSyncStarted = false;
 	private boolean isSyncCompleted = false;
 	private PacketProcessor packetProcessor = new PacketProcessor();
 
@@ -30,19 +31,7 @@ public class UdpTalk {
 		return false;
 	}
 
-	public void sendSync() throws Exception {
-		if (incomeSyncPacket == null) {
-			throw new Exception("Sync timeout");
-		}
-		if (isByteSync()) {
-			syncByte();
-		} else {
-			syncString();
-		}
-		isSyncCompleted = true;
-	}
-
-	private void syncString() {
+	private byte[] syncString() {
 		String incomePacket = new String(incomeSyncPacket);
 		StringBuilder stringBuilder = new StringBuilder();
 		stringBuilder.append("sync packet: [");
@@ -51,10 +40,10 @@ public class UdpTalk {
 		stringBuilder.append("Session started time: [");
 		stringBuilder.append(getUdpSession().getDiffTime());
 		stringBuilder.append("]\n");
-		stringBuilder.append("pingTime: [");
+		stringBuilder.append("ping: [");
 		stringBuilder.append(pingTime);
 		stringBuilder.append("]\n\n");
-		getUdpWriter().sendPacket(stringBuilder.toString());
+		return stringBuilder.toString().getBytes();
 	}
 
 	private byte pingCalc() {
@@ -67,14 +56,14 @@ public class UdpTalk {
 		return pingCalc;
 	}
 
-	private void syncByte() {
+	private byte[] syncByte() {
 		byte[] pingSyncPacket = incomeSyncPacket;
 		pingSyncPacket[6] = pingCalc();
 		pingSyncPacket[8] = (byte) 0x01;
 		pingSyncPacket[9] = (byte) 0x7f;
 		pingSyncPacket[10] = (byte) 0xff;
 		pingSyncPacket[14] = (byte) 0x00; // from session client Index
-		getUdpWriter().sendPacket(pingSyncPacket);
+		return pingSyncPacket;
 	}
 
 	public UdpSession getUdpSession() {
@@ -89,11 +78,12 @@ public class UdpTalk {
 		return udpWriter;
 	}
 
-	public void setPingTime(byte[] incomeSyncPacket) {
+	public void setIncomeSyncPacket(byte[] incomeSyncPacket) {
 		this.incomeSyncPacket = incomeSyncPacket;
+		isSyncStarted = true;
 		pingTime = getDiffTime();
 		try {
-			sendSync();
+			sendFrom(this, getSyncPacket());
 		} catch (Exception e) {
 			System.err.println(e.getMessage());
 		}
@@ -123,6 +113,21 @@ public class UdpTalk {
 
 	public long getTimeStart() {
 		return timeStart;
+	}
+
+	public byte[] getSyncPacket() throws Exception {
+		if (incomeSyncPacket == null) {
+			throw new Exception("Sync timeout");
+		}
+		isSyncCompleted = true;
+		if (isByteSync()) {
+			return syncByte();
+		}
+		return syncString();
+	}
+
+	public boolean isSyncStarted() {
+		return isSyncStarted;
 	}
 
 }

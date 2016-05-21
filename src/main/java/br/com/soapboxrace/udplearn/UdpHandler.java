@@ -11,11 +11,11 @@ public class UdpHandler {
 				System.out.println("Client Accepted! [" + port + "]");
 				UdpTalkers.put(port, udpTalk);
 			}
-		} else if (!udpTalk.isSyncCompleted()) {
+		} else if (!udpTalk.isSyncStarted()) {
 			UdpSync.completeSync(udpTalk, dataPacket);
 		} else {
 			UdpSession udpSession = udpTalk.getUdpSession();
-			udpSession.broadcast(udpTalk, dataPacket);
+			udpSession.broadcast(udpTalk, dataPacket.getDataBytes());
 		}
 	}
 

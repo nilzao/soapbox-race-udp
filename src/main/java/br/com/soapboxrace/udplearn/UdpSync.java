@@ -18,11 +18,11 @@ public class UdpSync {
 				dataBytes[17] == sessionId[1] && //
 				dataBytes[18] == sessionId[2] && //
 				dataBytes[19] == sessionId[3]) {
-			udpTalk.setPingTime(dataBytes);
+			udpTalk.setIncomeSyncPacket(dataBytes);
 		} else {
 			String dataString = dataPacket.getDataString();
 			if (dataString.contains("gogogo!")) {
-				udpTalk.setPingTime(dataPacket.getDataBytes());
+				udpTalk.setIncomeSyncPacket(dataPacket.getDataBytes());
 			}
 		}
 	}
