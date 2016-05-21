@@ -1,4 +1,4 @@
-package br.com.soapboxrace.udplearn;
+package br.com.soapboxrace.udp;
 
 import java.util.Date;
 import java.util.HashMap;

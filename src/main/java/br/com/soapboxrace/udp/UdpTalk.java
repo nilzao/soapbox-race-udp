@@ -1,101 +1,124 @@
 package br.com.soapboxrace.udp;
 
-import java.net.DatagramPacket;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map.Entry;
+import java.math.BigDecimal;
+import java.util.Date;
 
 public class UdpTalk {
 
+	private UdpSession udpSession = null;
+	private byte sessionClientIdx;
+	private long timeStart = 0;
+	private long pingTime = 0;
 	private UdpWriter udpWriter;
+	private int sessionId;
+	private byte[] incomeSyncPacket;
+	private boolean isSyncStarted = false;
+	private PacketProcessor packetProcessor = new PacketProcessor();
 
-	public UdpTalk(UdpWriter udpWriter) {
+	public UdpTalk(byte sessionClientIdx, int sessionId, UdpWriter udpWriter) {
+		this.sessionClientIdx = sessionClientIdx;
+		this.sessionId = sessionId;
 		this.udpWriter = udpWriter;
+		timeStart = new Date().getTime();
+		udpSession = UdpSessions.addUdpTalk(this);
 	}
 
-	public static String byteArrayToHexString(byte[] b) {
-		int len = b.length;
-		StringBuffer stringBuffer = new StringBuffer();
-		for (int i = 0; i < len; i++) {
-			stringBuffer.append(Integer.toHexString((b[i] >> 4) & 0xf));
-			stringBuffer.append(Integer.toHexString(b[i] & 0xf));
-			stringBuffer.append(':');
+	private boolean isByteSync() {
+		if (incomeSyncPacket[3] == 0x07) {
+			return true;
 		}
-		return stringBuffer.toString();
+		return false;
 	}
 
-	public static UdpTalk getUdpTalk(DatagramPacket receivePacket) {
-		// byte[] receivedData = getBytes(receivePacket);
-		// String byteArrayToHexString = byteArrayToHexString(receivedData);
-		// System.out.println("receivn: " + byteArrayToHexString);
-		UdpTalk udpTalk = null;
-		int port = receivePacket.getPort();
-		HashMap<Integer, UdpWriter> udpWriters = UdpServer.getUdpWriters();
-		UdpWriter udpWriter = udpWriters.get(port);
-		if (udpWriter == null) {
-			udpWriter = startTalk(receivePacket);
-		}
-		if (udpWriter != null) {
-			udpTalk = new UdpTalk(udpWriter);
-		}
-		return udpTalk;
+	private byte[] syncString() {
+		String incomePacket = new String(incomeSyncPacket);
+		StringBuilder stringBuilder = new StringBuilder();
+		stringBuilder.append("sync packet: [");
+		stringBuilder.append(incomePacket.trim());
+		stringBuilder.append("]\n");
+		stringBuilder.append("Session started time: [");
+		stringBuilder.append(getUdpSession().getDiffTime());
+		stringBuilder.append("]\n");
+		stringBuilder.append("ping: [");
+		stringBuilder.append(pingTime);
+		stringBuilder.append("]\n\n");
+		return stringBuilder.toString().getBytes();
 	}
 
-	private static byte[] getBytes(DatagramPacket receivePacket) {
-		int length = receivePacket.getLength();
-		byte[] data = new byte[length];
-		System.arraycopy(receivePacket.getData(), receivePacket.getOffset(), data, 0, receivePacket.getLength());
-		return data;
+	private byte pingCalc() {
+		long diffTime = getDiffTime();
+		if (diffTime > 1000) {
+			return (byte) 0xff;
+		}
+		float pingCalcFloat = 0.254F * diffTime;
+		byte pingCalc = new BigDecimal(pingCalcFloat).byteValue();
+		return pingCalc;
 	}
 
-	private static UdpWriter startTalk(DatagramPacket receivePacket) {
-		HashMap<Integer, UdpWriter> udpWriters = UdpServer.getUdpWriters();
-		int port = receivePacket.getPort();
-		UdpWriter udpWriter = null;
-		byte[] receivedData = getBytes(receivePacket);
-		if (receivedData[0] == 0 && receivedData[3] == 6) {
-			udpWriter = new UdpWriter(UdpServer.getServerSocket(), receivePacket, receivedData);
-			udpWriters.put(port, udpWriter);
-			System.out.println("client added: " + port);
-			byte[] helloBytes = new byte[12];
-			byte[] helloPacket = udpWriter.getHelloPacket();
-			helloBytes[4] = helloPacket[0];
-			helloBytes[5] = helloPacket[1];
-			helloBytes[6] = helloPacket[2];
-			helloBytes[7] = helloPacket[3];
-			helloBytes[8] = 1;
-			helloBytes[9] = 1;
-			helloBytes[10] = 1;
-			helloBytes[11] = 1;
-			udpWriter.send(helloBytes);
-		}
+	private byte[] syncByte() {
+		byte[] pingSyncPacket = incomeSyncPacket;
+		pingSyncPacket[6] = pingCalc();
+		// pingSyncPacket[8] = (byte) 0x01;
+		// pingSyncPacket[9] = (byte) 0x7f;
+		// pingSyncPacket[10] = (byte) 0xff;
+		// pingSyncPacket[14] = (byte) 0x00; // from session client Index
+		pingSyncPacket[(pingSyncPacket.length - 6)] = 0x03;
+		return pingSyncPacket;
+	}
+
+	public UdpSession getUdpSession() {
+		return udpSession;
+	}
+
+	public byte getSessionClientIdx() {
+		return sessionClientIdx;
+	}
+
+	public UdpWriter getUdpWriter() {
 		return udpWriter;
 	}
 
-	public void processReceived(DatagramPacket receivePacket) {
-		byte[] data = UdpProcess.prepare(getBytes(receivePacket));
-		if (data != null) {
-			this.broadcast(data);
+	public void setIncomeSyncPacket(byte[] incomeSyncPacket) {
+		this.incomeSyncPacket = incomeSyncPacket;
+		isSyncStarted = true;
+		pingTime = getDiffTime();
+		try {
+			sendFrom(this, getSyncPacket());
+		} catch (Exception e) {
+			System.err.println(e.getMessage());
 		}
 	}
 
-	private void broadcast(byte[] data) {
-		int port = udpWriter.getPort();
-		HashMap<Integer, UdpWriter> udpWriters = UdpServer.getUdpWriters();
-		Iterator<Entry<Integer, UdpWriter>> iterator = udpWriters.entrySet().iterator();
-		while (iterator.hasNext()) {
-			Entry<Integer, UdpWriter> next = iterator.next();
-			Integer key = next.getKey();
-			if (port != key) {
-				UdpWriter udpWriterTmp = next.getValue();
-				// try {
-				// Thread.sleep(10L);
-				// } catch (Exception e) {
-				// // TODO: handle exception
-				// }
-				udpWriterTmp.send(data);
-				// System.out.println("msg sent to: " + key);
-			}
-		}
+	private long getDiffTime() {
+		long now = new Date().getTime();
+		return now - timeStart;
 	}
+
+	public void sendFrom(UdpTalk udpTalk, byte[] sendData) {
+		byte[] processed = packetProcessor.getProcessed(sendData, udpTalk.getSessionClientIdx());
+		getUdpWriter().sendPacket(processed);
+	}
+
+	public int getSessionId() {
+		return sessionId;
+	}
+
+	public long getTimeStart() {
+		return timeStart;
+	}
+
+	public byte[] getSyncPacket() throws Exception {
+		if (incomeSyncPacket == null) {
+			throw new Exception("Sync timeout");
+		}
+		if (isByteSync()) {
+			return syncByte();
+		}
+		return syncString();
+	}
+
+	public boolean isSyncStarted() {
+		return isSyncStarted;
+	}
+
 }
