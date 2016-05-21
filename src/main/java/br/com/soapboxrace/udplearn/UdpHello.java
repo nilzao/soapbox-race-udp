@@ -10,6 +10,8 @@ public class UdpHello {
 			int sessionId = parseSessionId(dataPacket);
 			UdpWriter udpWriter = new UdpWriter(dataPacket);
 			udpTalk = new UdpTalk(sessionClientIdx, sessionId, udpWriter);
+			UdpSyncThread udpSyncThread = new UdpSyncThread(udpTalk);
+			udpSyncThread.start();
 			System.out.println("hello msg: [" + new String(helloPacket) + "]");
 			sendWelcomeMsg(udpTalk);
 		} catch (Exception e) {
@@ -26,13 +28,15 @@ public class UdpHello {
 		stringBuilder.append("Welcome to udp server learning");
 		stringBuilder.append("\n");
 		stringBuilder.append("Your SessionID: ");
-		stringBuilder.append(udpTalk.getUdpSession().getSessionId());
+		stringBuilder.append(udpTalk.getSessionId());
 		stringBuilder.append("\n");
 		stringBuilder.append("Your Session Client Index: ");
 		stringBuilder.append(udpTalk.getSessionClientIdx());
 		stringBuilder.append("\n");
 		stringBuilder.append("Your Client Port: ");
 		stringBuilder.append(udpTalk.getUdpWriter().getPort());
+		stringBuilder.append("\n");
+		stringBuilder.append("Please send your sessionStart packet");
 		stringBuilder.append("\n");
 		stringBuilder.append("you have 10 seconds to send some packets asap to detect your ping, have fun!");
 		stringBuilder.append("\n");
@@ -69,4 +73,21 @@ public class UdpHello {
 		return Integer.valueOf(sessionIdStr);
 	}
 
+	private static class UdpSyncThread extends Thread {
+
+		private UdpTalk udpTalk;
+
+		public UdpSyncThread(UdpTalk udpTalk) {
+			this.udpTalk = udpTalk;
+		}
+
+		public void run() {
+			try {
+				Thread.sleep(10000);
+			} catch (Exception e) {
+				System.out.println(e.getMessage());
+			}
+			udpTalk.sessionStart();
+		}
+	}
 }

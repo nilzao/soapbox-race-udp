@@ -5,21 +5,34 @@ import java.util.Date;
 public class UdpTalk {
 
 	private UdpSession udpSession = null;
-
 	private byte sessionClientIdx;
-
 	private long timeStart = 0;
-
+	private long pingTime = 0;
 	private UdpWriter udpWriter;
-
 	private int sessionId;
+	private byte[] incomeSyncPacket;
+	private boolean isSessionStarted = false;
+	private PacketProcessor packetProcessor = new PacketProcessor();
 
 	public UdpTalk(byte sessionClientIdx, int sessionId, UdpWriter udpWriter) {
 		this.sessionClientIdx = sessionClientIdx;
 		this.sessionId = sessionId;
 		this.udpWriter = udpWriter;
-		udpSession = UdpSessions.addUdpTalk(this);
 		timeStart = new Date().getTime();
+	}
+
+	public void sessionStart() {
+		udpSession = UdpSessions.addUdpTalk(this);
+		isSessionStarted = true;
+		String incomePacket = new String(incomeSyncPacket);
+		StringBuilder stringBuilder = new StringBuilder();
+		stringBuilder.append("sync packet: [");
+		stringBuilder.append(incomePacket.trim());
+		stringBuilder.append("]\n");
+		stringBuilder.append("pingTime: [");
+		stringBuilder.append(pingTime);
+		stringBuilder.append("]\n\n");
+		getUdpWriter().sendPacket(stringBuilder.toString());
 	}
 
 	public UdpSession getUdpSession() {
@@ -34,6 +47,15 @@ public class UdpTalk {
 		return udpWriter;
 	}
 
+	public void setPingTime(byte[] incomeSyncPacket) {
+		this.incomeSyncPacket = incomeSyncPacket;
+		pingTime = getDiffTime();
+	}
+
+	public long getPingTime() {
+		return pingTime;
+	}
+
 	public long getDiffTime() {
 		long now = new Date().getTime();
 		return now - timeStart;
@@ -45,10 +67,17 @@ public class UdpTalk {
 		stringBuffer.append(udpTalk.getSessionClientIdx());
 		stringBuffer.append("] ");
 		stringBuffer.append(new String(sendData));
-		getUdpWriter().sendPacket(stringBuffer.toString().getBytes());
+		byte[] bytes = stringBuffer.toString().getBytes();
+		byte[] processed = packetProcessor.getProcessed(bytes, sessionClientIdx);
+		getUdpWriter().sendPacket(processed);
 	}
 
 	public int getSessionId() {
 		return sessionId;
 	}
+
+	public boolean isSessionStarted() {
+		return isSessionStarted;
+	}
+
 }
