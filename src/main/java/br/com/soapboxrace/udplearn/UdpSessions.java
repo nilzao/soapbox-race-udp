@@ -6,12 +6,13 @@ public class UdpSessions {
 
 	private static HashMap<Integer, UdpSession> udpSessions = new HashMap<Integer, UdpSession>();
 
-	public static UdpSession addUdpTalk(UdpHello udpTalk) {
+	public static UdpSession addUdpTalk(UdpTalk udpTalk) {
 		int sessionId = udpTalk.getSessionId();
 		UdpSession udpSession = udpSessions.get(sessionId);
 		if (udpSession == null) {
 			System.out.println("new session [" + udpTalk.getSessionId() + "] added to UdpSessions with UdpTalk");
-			udpSession = new UdpSession(sessionId, udpTalk);
+			udpSession = new UdpSession(sessionId);
+			udpSession.put(udpTalk);
 			put(udpSession);
 			return udpSession;
 		}
@@ -26,6 +27,10 @@ public class UdpSessions {
 
 	public UdpSession remove(UdpSession udpSession) {
 		return udpSessions.remove(udpSession.getSessionId());
+	}
+
+	public static UdpSession get(int sessionId) {
+		return udpSessions.get(sessionId);
 	}
 
 }

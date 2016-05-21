@@ -4,7 +4,7 @@ public class UdpHandler {
 
 	public static void handlePacket(DataPacket dataPacket) {
 		int port = dataPacket.getPort();
-		UdpHello udpTalk = UdpTalkers.get(port);
+		UdpTalk udpTalk = UdpTalkers.get(port);
 		if (udpTalk == null) {
 			udpTalk = UdpHello.startTalk(dataPacket);
 			if (udpTalk != null) {

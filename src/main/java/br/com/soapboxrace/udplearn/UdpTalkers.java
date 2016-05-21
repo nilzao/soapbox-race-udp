@@ -4,17 +4,17 @@ import java.util.HashMap;
 
 public class UdpTalkers {
 
-	private static HashMap<Integer, UdpHello> udpTalkers = new HashMap<Integer, UdpHello>();
+	private static HashMap<Integer, UdpTalk> udpTalkers = new HashMap<Integer, UdpTalk>();
 
-	public static UdpHello put(Integer key, UdpHello value) {
+	public static UdpTalk put(Integer key, UdpTalk value) {
 		return udpTalkers.put(key, value);
 	}
 
-	public static UdpHello remove(Integer key) {
+	public static UdpTalk remove(Integer key) {
 		return udpTalkers.remove(key);
 	}
 
-	public static UdpHello get(Integer key) {
+	public static UdpTalk get(Integer key) {
 		return udpTalkers.get(key);
 	}
 
