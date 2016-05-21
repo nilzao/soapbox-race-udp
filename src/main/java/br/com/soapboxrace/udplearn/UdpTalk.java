@@ -22,10 +22,24 @@ public class UdpTalk {
 		udpSession = UdpSessions.addUdpTalk(this);
 	}
 
-	public void syncCompleted() throws Exception {
+	private boolean isByteSync() {
+
+		return false;
+	}
+
+	public void sendSync() throws Exception {
 		if (incomeSyncPacket == null) {
 			throw new Exception("Sync timeout");
 		}
+		if (isByteSync()) {
+			syncByte();
+		} else {
+			syncString();
+		}
+		isSyncCompleted = true;
+	}
+
+	private void syncString() {
 		String incomePacket = new String(incomeSyncPacket);
 		StringBuilder stringBuilder = new StringBuilder();
 		stringBuilder.append("sync packet: [");
@@ -38,7 +52,21 @@ public class UdpTalk {
 		stringBuilder.append(pingTime);
 		stringBuilder.append("]\n\n");
 		getUdpWriter().sendPacket(stringBuilder.toString());
-		isSyncCompleted = true;
+	}
+
+	private byte pingCalc() {
+		byte pingCalc = 0x00;
+		return pingCalc;
+	}
+
+	private void syncByte() {
+		byte[] pingSyncPacket = incomeSyncPacket;
+		pingSyncPacket[6] = pingCalc();
+		pingSyncPacket[8] = (byte) 0x01;
+		pingSyncPacket[9] = (byte) 0x7f;
+		pingSyncPacket[10] = (byte) 0xff;
+		pingSyncPacket[14] = (byte) 0x00; // from session client Index
+		getUdpWriter().sendPacket(pingSyncPacket);
 	}
 
 	public UdpSession getUdpSession() {
@@ -56,6 +84,11 @@ public class UdpTalk {
 	public void setPingTime(byte[] incomeSyncPacket) {
 		this.incomeSyncPacket = incomeSyncPacket;
 		pingTime = getDiffTime();
+		try {
+			sendSync();
+		} catch (Exception e) {
+			System.err.println(e.getMessage());
+		}
 	}
 
 	public long getPingTime() {

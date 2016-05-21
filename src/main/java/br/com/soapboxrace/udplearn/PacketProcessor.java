@@ -6,9 +6,9 @@ public class PacketProcessor {
 
 	private int countA = 0;
 	private int countB = 0;
-	private int sessionFromClientIdx;
+	private byte sessionFromClientIdx;
 
-	public byte[] getProcessed(byte[] data, int sessionFromClientIdx) {
+	public byte[] getProcessed(byte[] data, byte sessionFromClientIdx) {
 		this.sessionFromClientIdx = sessionFromClientIdx;
 		byte[] dataTmp = isTypeA(data);
 		if (dataTmp != null) {
@@ -71,12 +71,15 @@ public class PacketProcessor {
 	}
 
 	private byte[] transformStrTypeB(byte[] data) {
-		StringBuilder stringBuilder = new StringBuilder();
-		stringBuilder.append("pkg typeB num: [");
-		stringBuilder.append(countB);
-		stringBuilder.append("] ");
-		stringBuilder.append(new String(data));
-		return stringBuilder.toString().getBytes();
+		StringBuffer stringBuffer = new StringBuffer();
+		stringBuffer.append("from [");
+		stringBuffer.append(sessionFromClientIdx);
+		stringBuffer.append("] ");
+		stringBuffer.append("pkg typeB num: [");
+		stringBuffer.append(countB);
+		stringBuffer.append("] ");
+		stringBuffer.append(new String(data));
+		return stringBuffer.toString().getBytes();
 	}
 
 	private byte[] transformByteTypeB(byte[] data) {
@@ -84,6 +87,7 @@ public class PacketProcessor {
 		int size = data.length - 3;
 		byte[] dataTmp = new byte[size];
 		dataTmp[0] = 1;
+		dataTmp[1] = sessionFromClientIdx;
 		dataTmp[2] = seqArray[0];
 		dataTmp[3] = seqArray[1];
 		int iDataTmp = 4;

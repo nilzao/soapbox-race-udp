@@ -131,7 +131,7 @@ public class UdpHello {
 		public void run() {
 			try {
 				Thread.sleep(10000);
-				udpTalk.syncCompleted();
+				udpTalk.sendSync();
 			} catch (Exception e) {
 				System.out.println(e.getMessage());
 			}
