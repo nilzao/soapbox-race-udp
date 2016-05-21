@@ -25,9 +25,9 @@ public class UdpTalk {
 	}
 
 	public static UdpTalk getUdpTalk(DatagramPacket receivePacket) {
-		byte[] receivedData = getBytes(receivePacket);
-		String byteArrayToHexString = byteArrayToHexString(receivedData);
-		System.out.println("receivn: " + byteArrayToHexString);
+		// byte[] receivedData = getBytes(receivePacket);
+		// String byteArrayToHexString = byteArrayToHexString(receivedData);
+		// System.out.println("receivn: " + byteArrayToHexString);
 		UdpTalk udpTalk = null;
 		int port = receivePacket.getPort();
 		HashMap<Integer, UdpWriter> udpWriters = UdpServer.getUdpWriters();
@@ -88,8 +88,13 @@ public class UdpTalk {
 			Integer key = next.getKey();
 			if (port != key) {
 				UdpWriter udpWriterTmp = next.getValue();
+				// try {
+				// Thread.sleep(10L);
+				// } catch (Exception e) {
+				// // TODO: handle exception
+				// }
 				udpWriterTmp.send(data);
-				System.out.println("msg sent to: " + key);
+				// System.out.println("msg sent to: " + key);
 			}
 		}
 	}

@@ -50,7 +50,9 @@ public class UdpServer {
 			try {
 				while (true) {
 					serverSocket.receive(receivePacket);
-					UdpTalkers.handlePacket(receivePacket);
+					DataPacket dataPacket = new DataPacket(serverSocket, receivePacket);
+					Debug.debugReceivePacket(dataPacket);
+					UdpHandler.handlePacket(dataPacket);
 					for (int i = 0; i < receiveData.length; i++) {
 						receiveData[i] = 0;
 					}

@@ -6,15 +6,16 @@ import java.net.InetAddress;
 
 public class UdpWriter {
 
-	private DatagramSocket serverSocket;
-	private InetAddress ipAddress;
 	private int port;
 
-	public UdpWriter(DatagramSocket serverSocket, DatagramPacket receivePacket) {
-		if (receivePacket != null) {
-			this.ipAddress = receivePacket.getAddress();
-			this.port = receivePacket.getPort();
-		}
+	private InetAddress address;
+
+	private DatagramSocket serverSocket;
+
+	public UdpWriter(DataPacket dataPacket) {
+		address = dataPacket.getAddress();
+		port = dataPacket.getPort();
+		serverSocket = dataPacket.getServerSocket();
 	}
 
 	public void sendPacket(String sendData) {
@@ -23,11 +24,15 @@ public class UdpWriter {
 
 	public void sendPacket(byte[] sendData) {
 		try {
-			DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, ipAddress, port);
+			DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, address, port);
 			serverSocket.send(sendPacket);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+
+	public int getPort() {
+		return port;
 	}
 
 }

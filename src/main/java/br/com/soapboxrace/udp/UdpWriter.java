@@ -49,11 +49,11 @@ public class UdpWriter {
 			this.sendPacket();
 			seqHandshake++;
 		}
-		if (seqHandshake > 0 && seqHandshake < 10) {
+		if (seqHandshake > 0 && seqHandshake < 50) {
 			sendPacket();
 			seqHandshake++;
 		}
-		if (seqHandshake == 10) {
+		if (seqHandshake == 50) {
 			this.sendData = handShakePacket;
 			sendPacket();
 			seqHandshake++;
@@ -63,9 +63,10 @@ public class UdpWriter {
 	private void sendPacket() {
 		try {
 			DatagramPacket sendPacket = new DatagramPacket(this.sendData, this.sendData.length, ipAddress, port);
-			System.out.print("sending: ");
-			String byteArrayToHexString = UdpTalk.byteArrayToHexString(this.sendData);
-			System.out.println(byteArrayToHexString);
+			// System.out.print("sending: ");
+			// String byteArrayToHexString =
+			// UdpTalk.byteArrayToHexString(this.sendData);
+			// System.out.println(byteArrayToHexString);
 			serverSocket.send(sendPacket);
 		} catch (Exception e) {
 			e.printStackTrace();
