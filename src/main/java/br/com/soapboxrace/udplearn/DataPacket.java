@@ -8,17 +8,22 @@ public class DataPacket {
 
 	private DatagramPacket receivePacket;
 	private DatagramSocket serverSocket;
+	private byte[] dataBytes;
 
 	public DataPacket(DatagramSocket serverSocket, DatagramPacket receivePacket) {
 		this.serverSocket = serverSocket;
 		this.receivePacket = receivePacket;
+		int length = receivePacket.getLength();
+		dataBytes = new byte[length];
+		System.arraycopy(receivePacket.getData(), receivePacket.getOffset(), dataBytes, 0, receivePacket.getLength());
+	}
+
+	public void replaceDataBytes(byte[] newDataBytes) {
+		dataBytes = newDataBytes;
 	}
 
 	public byte[] getDataBytes() {
-		int length = receivePacket.getLength();
-		byte[] data = new byte[length];
-		System.arraycopy(receivePacket.getData(), receivePacket.getOffset(), data, 0, receivePacket.getLength());
-		return data;
+		return dataBytes;
 	}
 
 	public String getDataString() {

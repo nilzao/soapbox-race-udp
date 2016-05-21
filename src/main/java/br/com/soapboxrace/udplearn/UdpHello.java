@@ -1,5 +1,7 @@
 package br.com.soapboxrace.udplearn;
 
+import java.math.BigInteger;
+
 public class UdpHello {
 
 	public static UdpTalk startTalk(DataPacket dataPacket) {
@@ -41,39 +43,55 @@ public class UdpHello {
 		stringBuilder.append("\n");
 		stringBuilder.append("Please send your sessionStart packet");
 		stringBuilder.append("\n");
-		stringBuilder.append("you have 10 seconds to send some packets asap to detect your ping, have fun!");
+		stringBuilder.append("you have 10 seconds to send some packets asap to detect your package loss, have fun!");
 		stringBuilder.append("\n");
 		stringBuilder.append("\n");
 		udpTalk.getUdpWriter().sendPacket(stringBuilder.toString());
 	}
 
 	private static byte[] parseHelloPacket(DataPacket dataPacket) throws Exception {
-		String dataString = dataPacket.getDataString();
-		if (!dataString.contains("hello!")) {
-			throw new Exception("invalid hello");
+		byte[] dataBytes = dataPacket.getDataBytes();
+		if (dataBytes[3] == 0x06) {
+			byte[] helloPacket = { dataBytes[5], dataBytes[6], dataBytes[7], dataBytes[8] };
+			return helloPacket;
 		}
-		return dataString.trim().getBytes();
+		String dataString = dataPacket.getDataString();
+		if (dataString.contains("hello!")) {
+			return dataString.trim().getBytes();
+		}
+		throw new Exception("invalid hello");
 	}
 
 	private static byte parseSessionClientIdx(DataPacket dataPacket) throws Exception {
+		byte[] dataBytes = dataPacket.getDataBytes();
+		if (dataBytes[3] == 0x06) {
+			return dataBytes[4];
+		}
+
 		String dataString = dataPacket.getDataString();
 		if (!dataString.contains("sidx:")) {
-			throw new Exception("invalid session client index");
+			int indexOf = dataString.indexOf("sidx:");
+			String sidxStr = dataString.substring(indexOf + 5, indexOf + 6);
+			return Byte.valueOf(sidxStr);
 		}
-		int indexOf = dataString.indexOf("sidx:");
-		String sidxStr = dataString.substring(indexOf + 5, indexOf + 6);
-		return Byte.valueOf(sidxStr);
+		throw new Exception("invalid session client index");
 	}
 
 	private static int parseSessionId(DataPacket dataPacket) throws Exception {
+		byte[] dataBytes = dataPacket.getDataBytes();
+		if (dataBytes[3] == 0x06) {
+			byte[] sessionId = { dataBytes[9], dataBytes[10], dataBytes[11], dataBytes[12] };
+			return new BigInteger(sessionId).intValue();
+		}
+
 		String dataString = dataPacket.getDataString();
 		dataString = dataString.trim();
 		if (!dataString.contains("sid:")) {
-			throw new Exception("invalid session id");
+			int indexOf = dataString.indexOf("sid:");
+			String sessionIdStr = dataString.substring(indexOf + 4, dataString.length());
+			return Integer.valueOf(sessionIdStr);
 		}
-		int indexOf = dataString.indexOf("sid:");
-		String sessionIdStr = dataString.substring(indexOf + 4, dataString.length());
-		return Integer.valueOf(sessionIdStr);
+		throw new Exception("invalid session id");
 	}
 
 	private static class UdpSyncThread extends Thread {
@@ -87,10 +105,10 @@ public class UdpHello {
 		public void run() {
 			try {
 				Thread.sleep(10000);
+				udpTalk.syncCompleted();
 			} catch (Exception e) {
 				System.out.println(e.getMessage());
 			}
-			udpTalk.syncCompleted();
 		}
 	}
 }

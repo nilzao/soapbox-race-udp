@@ -22,8 +22,10 @@ public class UdpTalk {
 		udpSession = UdpSessions.addUdpTalk(this);
 	}
 
-	public void syncCompleted() {
-		isSyncCompleted = true;
+	public void syncCompleted() throws Exception {
+		if (incomeSyncPacket == null) {
+			throw new Exception("Sync timeout");
+		}
 		String incomePacket = new String(incomeSyncPacket);
 		StringBuilder stringBuilder = new StringBuilder();
 		stringBuilder.append("sync packet: [");
@@ -36,6 +38,7 @@ public class UdpTalk {
 		stringBuilder.append(pingTime);
 		stringBuilder.append("]\n\n");
 		getUdpWriter().sendPacket(stringBuilder.toString());
+		isSyncCompleted = true;
 	}
 
 	public UdpSession getUdpSession() {

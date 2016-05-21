@@ -45,7 +45,7 @@ public class UdpServer {
 		}
 
 		public void run() {
-			byte[] receiveData = new byte[512];
+			byte[] receiveData = new byte[2048];
 			DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
 			try {
 				while (true) {
