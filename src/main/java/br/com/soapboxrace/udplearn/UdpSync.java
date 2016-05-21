@@ -4,7 +4,7 @@ import java.nio.ByteBuffer;
 
 public class UdpSync {
 
-	public static void completeSync(UdpTalk udpTalk, DataPacket dataPacket) {
+	public static void startSync(UdpTalk udpTalk, DataPacket dataPacket) {
 		byte[] dataBytes = dataPacket.getDataBytes();
 		ByteBuffer dbuf = ByteBuffer.allocate(4);
 		dbuf.putInt(udpTalk.getSessionId());

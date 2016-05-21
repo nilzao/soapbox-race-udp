@@ -10,15 +10,27 @@ public class PacketProcessor {
 
 	public byte[] getProcessed(byte[] data, byte sessionFromClientIdx) {
 		this.sessionFromClientIdx = sessionFromClientIdx;
-		byte[] dataTmp = isTypeA(data);
+		byte[] dataTmp = isTypeB(data);
+		if (dataTmp != null) {
+			countB++;
+			return dataTmp;
+		}
+		dataTmp = isTypeA(data);
 		if (dataTmp != null) {
 			countA++;
 			return dataTmp;
 		}
-		dataTmp = isTypeB(data);
+		dataTmp = isTypeAStart(data);
 		if (dataTmp != null) {
-			countB++;
+			countA++;
 			return dataTmp;
+		}
+		return data;
+	}
+
+	private byte[] isTypeAStart(byte[] data) {
+		if (data.length == 25) {
+			data[(data.length - 6)] = 0x03;
 		}
 		return data;
 	}

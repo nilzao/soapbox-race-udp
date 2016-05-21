@@ -13,7 +13,6 @@ public class UdpTalk {
 	private int sessionId;
 	private byte[] incomeSyncPacket;
 	private boolean isSyncStarted = false;
-	private boolean isSyncCompleted = false;
 	private PacketProcessor packetProcessor = new PacketProcessor();
 
 	public UdpTalk(byte sessionClientIdx, int sessionId, UdpWriter udpWriter) {
@@ -59,10 +58,11 @@ public class UdpTalk {
 	private byte[] syncByte() {
 		byte[] pingSyncPacket = incomeSyncPacket;
 		pingSyncPacket[6] = pingCalc();
-		pingSyncPacket[8] = (byte) 0x01;
-		pingSyncPacket[9] = (byte) 0x7f;
-		pingSyncPacket[10] = (byte) 0xff;
-		pingSyncPacket[14] = (byte) 0x00; // from session client Index
+		// pingSyncPacket[8] = (byte) 0x01;
+		// pingSyncPacket[9] = (byte) 0x7f;
+		// pingSyncPacket[10] = (byte) 0xff;
+		// pingSyncPacket[14] = (byte) 0x00; // from session client Index
+		pingSyncPacket[(pingSyncPacket.length - 6)] = 0x03;
 		return pingSyncPacket;
 	}
 
@@ -89,11 +89,7 @@ public class UdpTalk {
 		}
 	}
 
-	public long getPingTime() {
-		return pingTime;
-	}
-
-	public long getDiffTime() {
+	private long getDiffTime() {
 		long now = new Date().getTime();
 		return now - timeStart;
 	}
@@ -107,10 +103,6 @@ public class UdpTalk {
 		return sessionId;
 	}
 
-	public boolean isSyncCompleted() {
-		return isSyncCompleted;
-	}
-
 	public long getTimeStart() {
 		return timeStart;
 	}
@@ -119,7 +111,6 @@ public class UdpTalk {
 		if (incomeSyncPacket == null) {
 			throw new Exception("Sync timeout");
 		}
-		isSyncCompleted = true;
 		if (isByteSync()) {
 			return syncByte();
 		}

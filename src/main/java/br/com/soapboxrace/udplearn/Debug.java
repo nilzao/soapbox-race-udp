@@ -2,19 +2,20 @@ package br.com.soapboxrace.udplearn;
 
 public class Debug {
 
-	private static boolean isDebugging = true;
+	private static boolean isDebugging = false;
 
 	public static void debugReceivePacket(DataPacket dataPacket) {
 		if (isDebugging) {
 			if (isReadablePackets(dataPacket)) {
 				String string = dataPacket.getDataString();
-				System.out.println("Receiving: [" + string.trim() + "]");
+				System.out.println("from: [" + dataPacket.getPort() + "] Receiving: [" + string.trim() + "]");
 				if (string.contains("01:01:01:01:")) {
 					byte[] hexStringToByteArray = hexStringToByteArray(string.trim());
 					dataPacket.replaceDataBytes(hexStringToByteArray);
 				}
 			} else {
-				System.out.println("Receiving: [" + byteArrayToHexString(dataPacket.getDataBytes()) + "]");
+				System.out.println("from: [" + dataPacket.getPort() + "] Receiving: ["
+						+ byteArrayToHexString(dataPacket.getDataBytes()) + "]");
 			}
 		}
 	}
@@ -42,7 +43,8 @@ public class Debug {
 			} else {
 				String byteArrayToHexString = "from-srv: {" + byteArrayToHexString(dataBytes) + "}\n";
 				System.out.println("Sending: [" + byteArrayToHexString.trim() + "]");
-				return byteArrayToHexString.getBytes();
+				// return byteArrayToHexString.getBytes();
+				return dataBytes;
 			}
 		}
 		return dataBytes;

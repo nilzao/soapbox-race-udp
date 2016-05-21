@@ -31,7 +31,7 @@ public class UdpSession {
 		while (iterator.hasNext()) {
 			Entry<Integer, UdpTalk> next = iterator.next();
 			Integer key = next.getKey();
-			if (udpTalk.getSessionClientIdx() != key) {
+			if (udpTalk.getSessionClientIdx() != key && udpTalk.isSyncStarted()) {
 				UdpTalk udpTalkTmp = next.getValue();
 				udpTalkTmp.sendFrom(udpTalk, dataPacket);
 			}
