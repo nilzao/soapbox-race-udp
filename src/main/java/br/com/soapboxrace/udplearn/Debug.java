@@ -5,22 +5,37 @@ public class Debug {
 	private static boolean isDebugging = true;
 
 	public static void debugReceivePacket(DataPacket dataPacket) {
-		boolean readablePackets = true;
-		byte[] dataBytes = dataPacket.getDataBytes();
-		if (dataBytes[0] < 0x20) {
-			readablePackets = false;
-		}
 		if (isDebugging) {
-			if (readablePackets) {
-				String string = new String(dataBytes);
+			if (isReadablePackets(dataPacket)) {
+				String string = dataPacket.getDataString();
 				System.out.println("Receiving: [" + string.trim() + "]");
 				if (string.contains("01:01:01:01:")) {
 					byte[] hexStringToByteArray = hexStringToByteArray(string.trim());
 					dataPacket.replaceDataBytes(hexStringToByteArray);
 				}
+			} else {
+				System.out.println("Receiving: [" + byteArrayToHexString(dataPacket.getDataBytes()) + "]");
 			}
-			if (!readablePackets) {
-				System.out.println("Receiving: [" + byteArrayToHexString(dataBytes) + "]");
+		}
+	}
+
+	private static boolean isReadablePackets(DataPacket dataPacket) {
+		byte[] dataBytes = dataPacket.getDataBytes();
+		if (dataBytes[0] < 0x20) {
+			return false;
+		}
+		return true;
+	}
+
+	public static void debugSendPacket(DataPacket dataPacket) {
+		if (isDebugging) {
+			if (isReadablePackets(dataPacket)) {
+				String string = dataPacket.getDataString();
+				System.out.println("Sending: [" + string.trim() + "]");
+			} else {
+				String byteArrayToHexString = byteArrayToHexString(dataPacket.getDataBytes());
+				dataPacket.replaceDataBytes(byteArrayToHexString.getBytes());
+				System.out.println("Sending: [" + byteArrayToHexString + "]");
 			}
 		}
 	}
