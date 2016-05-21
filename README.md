@@ -1,5 +1,3 @@
-this branch is just for study.
-
 how the protocol works.
 
 using netcat client
