@@ -11,7 +11,7 @@ public class UdpTalk {
 	private UdpWriter udpWriter;
 	private int sessionId;
 	private byte[] incomeSyncPacket;
-	private boolean isSessionStarted = false;
+	private boolean isSyncCompleted = false;
 	private PacketProcessor packetProcessor = new PacketProcessor();
 
 	public UdpTalk(byte sessionClientIdx, int sessionId, UdpWriter udpWriter) {
@@ -19,15 +19,18 @@ public class UdpTalk {
 		this.sessionId = sessionId;
 		this.udpWriter = udpWriter;
 		timeStart = new Date().getTime();
+		udpSession = UdpSessions.addUdpTalk(this);
 	}
 
-	public void sessionStart() {
-		udpSession = UdpSessions.addUdpTalk(this);
-		isSessionStarted = true;
+	public void syncCompleted() {
+		isSyncCompleted = true;
 		String incomePacket = new String(incomeSyncPacket);
 		StringBuilder stringBuilder = new StringBuilder();
 		stringBuilder.append("sync packet: [");
 		stringBuilder.append(incomePacket.trim());
+		stringBuilder.append("]\n");
+		stringBuilder.append("Session started time: [");
+		stringBuilder.append(getUdpSession().getDiffTime());
 		stringBuilder.append("]\n");
 		stringBuilder.append("pingTime: [");
 		stringBuilder.append(pingTime);
@@ -76,8 +79,12 @@ public class UdpTalk {
 		return sessionId;
 	}
 
-	public boolean isSessionStarted() {
-		return isSessionStarted;
+	public boolean isSyncCompleted() {
+		return isSyncCompleted;
+	}
+
+	public long getTimeStart() {
+		return timeStart;
 	}
 
 }

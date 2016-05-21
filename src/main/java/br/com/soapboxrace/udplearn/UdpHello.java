@@ -27,9 +27,12 @@ public class UdpHello {
 		stringBuilder.append("\n");
 		stringBuilder.append("Welcome to udp server learning");
 		stringBuilder.append("\n");
-		stringBuilder.append("Your SessionID: ");
-		stringBuilder.append(udpTalk.getSessionId());
+		stringBuilder.append("SessionID: ");
+		stringBuilder.append(udpTalk.getUdpSession().getSessionId());
 		stringBuilder.append("\n");
+		stringBuilder.append("SessionID started time: [");
+		stringBuilder.append(udpTalk.getUdpSession().getDiffTime());
+		stringBuilder.append("]\n");
 		stringBuilder.append("Your Session Client Index: ");
 		stringBuilder.append(udpTalk.getSessionClientIdx());
 		stringBuilder.append("\n");
@@ -87,7 +90,7 @@ public class UdpHello {
 			} catch (Exception e) {
 				System.out.println(e.getMessage());
 			}
-			udpTalk.sessionStart();
+			udpTalk.syncCompleted();
 		}
 	}
 }

@@ -1,5 +1,6 @@
 package br.com.soapboxrace.udplearn;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map.Entry;
@@ -9,8 +10,11 @@ public class UdpSession {
 	private HashMap<Integer, UdpTalk> udpTalkers = new HashMap<Integer, UdpTalk>();
 	private int sessionId;
 
-	public UdpSession(int sessionId) {
+	private long timeStart;
+
+	public UdpSession(int sessionId, long timeStart) {
 		this.sessionId = sessionId;
+		this.timeStart = timeStart;
 	}
 
 	public int getSessionId() {
@@ -33,6 +37,11 @@ public class UdpSession {
 				udpTalkTmp.sendFrom(udpTalk, transformPacket.getDataBytes());
 			}
 		}
+	}
+
+	public long getDiffTime() {
+		long now = new Date().getTime();
+		return now - timeStart;
 	}
 
 }
