@@ -1,5 +1,6 @@
 package br.com.soapboxrace.udplearn;
 
+import java.math.BigDecimal;
 import java.util.Date;
 
 public class UdpTalk {
@@ -23,7 +24,9 @@ public class UdpTalk {
 	}
 
 	private boolean isByteSync() {
-
+		if (incomeSyncPacket[3] == 0x07) {
+			return true;
+		}
 		return false;
 	}
 
@@ -55,7 +58,12 @@ public class UdpTalk {
 	}
 
 	private byte pingCalc() {
-		byte pingCalc = 0x00;
+		long diffTime = getDiffTime();
+		if (diffTime > 1000) {
+			return (byte) 0xff;
+		}
+		float pingCalcFloat = 0.254F * diffTime;
+		byte pingCalc = new BigDecimal(pingCalcFloat).byteValue();
 		return pingCalc;
 	}
 
