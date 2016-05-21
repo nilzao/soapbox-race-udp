@@ -18,7 +18,8 @@ public class UdpTalk {
 		this.sessionClientIdx = sessionClientIdx;
 		this.sessionId = sessionId;
 		this.udpWriter = udpWriter;
-		this.udpSession = UdpSessions.addUdpTalk(this);
+		udpSession = UdpSessions.addUdpTalk(this);
+		timeStart = new Date().getTime();
 	}
 
 	public UdpSession getUdpSession() {
