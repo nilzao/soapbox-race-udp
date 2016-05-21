@@ -68,13 +68,7 @@ public class UdpTalk {
 	}
 
 	public void sendFrom(UdpTalk udpTalk, byte[] sendData) {
-		StringBuffer stringBuffer = new StringBuffer();
-		stringBuffer.append("from [");
-		stringBuffer.append(udpTalk.getSessionClientIdx());
-		stringBuffer.append("] ");
-		stringBuffer.append(new String(sendData));
-		byte[] bytes = stringBuffer.toString().getBytes();
-		byte[] processed = packetProcessor.getProcessed(bytes, sessionClientIdx);
+		byte[] processed = packetProcessor.getProcessed(sendData, udpTalk.getSessionClientIdx());
 		getUdpWriter().sendPacket(processed);
 	}
 

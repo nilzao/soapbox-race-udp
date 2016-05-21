@@ -21,23 +21,31 @@ public class Debug {
 
 	private static boolean isReadablePackets(DataPacket dataPacket) {
 		byte[] dataBytes = dataPacket.getDataBytes();
-		if (dataBytes[0] < 0x20) {
-			return false;
+		return isReadablePackets(dataBytes);
+	}
+
+	private static boolean isReadablePackets(byte[] dataBytes) {
+		if (dataBytes.length > 1) {
+			if (dataBytes[1] < 0x20) {
+				return false;
+			}
 		}
 		return true;
 	}
 
-	public static void debugSendPacket(DataPacket dataPacket) {
+	public static byte[] debugSendPacket(byte[] dataBytes) {
 		if (isDebugging) {
-			if (isReadablePackets(dataPacket)) {
-				String string = dataPacket.getDataString();
+			if (isReadablePackets(dataBytes)) {
+				String string = new String(dataBytes);
 				System.out.println("Sending: [" + string.trim() + "]");
+				return string.getBytes();
 			} else {
-				String byteArrayToHexString = byteArrayToHexString(dataPacket.getDataBytes());
-				dataPacket.replaceDataBytes(byteArrayToHexString.getBytes());
-				System.out.println("Sending: [" + byteArrayToHexString + "]");
+				String byteArrayToHexString = "from-srv: {" + byteArrayToHexString(dataBytes) + "}\n";
+				System.out.println("Sending: [" + byteArrayToHexString.trim() + "]");
+				return byteArrayToHexString.getBytes();
 			}
 		}
+		return dataBytes;
 	}
 
 	private static byte[] hexStringToByteArray(String s) {

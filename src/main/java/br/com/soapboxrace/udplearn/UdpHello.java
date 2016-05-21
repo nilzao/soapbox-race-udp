@@ -1,6 +1,7 @@
 package br.com.soapboxrace.udplearn;
 
 import java.math.BigInteger;
+import java.nio.ByteBuffer;
 
 public class UdpHello {
 
@@ -14,8 +15,11 @@ public class UdpHello {
 			udpTalk = new UdpTalk(sessionClientIdx, sessionId, udpWriter);
 			UdpSyncThread udpSyncThread = new UdpSyncThread(udpTalk);
 			udpSyncThread.start();
-			System.out.println("hello msg: [" + new String(helloPacket) + "]");
-			sendWelcomeMsg(udpTalk);
+			if (isByteHello(dataPacket.getDataBytes())) {
+				sendWelcomeByteMsg(udpTalk, helloPacket);
+			} else {
+				sendWelcomeStrMsg(udpTalk, helloPacket);
+			}
 		} catch (Exception e) {
 			System.err.println("NOT A VALID HELLO PACKET!");
 			System.err.println(e.getMessage());
@@ -24,7 +28,22 @@ public class UdpHello {
 		return udpTalk;
 	}
 
-	private static void sendWelcomeMsg(UdpTalk udpTalk) {
+	private static void sendWelcomeByteMsg(UdpTalk udpTalk, byte[] helloPacket) {
+		ByteBuffer byteBuffer = ByteBuffer.allocate(12);
+		byteBuffer.put((byte) 0x00);
+		byteBuffer.put((byte) 0x00);
+		byteBuffer.put((byte) 0x00);
+		byteBuffer.put((byte) 0x01);
+		byteBuffer.put(helloPacket);
+		byteBuffer.put((byte) 0x01);
+		byteBuffer.put((byte) 0x01);
+		byteBuffer.put((byte) 0x01);
+		byteBuffer.put((byte) 0x01);
+		udpTalk.getUdpWriter().sendPacket(byteBuffer.array());
+	}
+
+	private static void sendWelcomeStrMsg(UdpTalk udpTalk, byte[] helloPacket) {
+		System.out.println("hello msg: [" + new String(helloPacket) + "]");
 		StringBuilder stringBuilder = new StringBuilder();
 		stringBuilder.append("\n");
 		stringBuilder.append("Welcome to udp server learning");
@@ -49,9 +68,16 @@ public class UdpHello {
 		udpTalk.getUdpWriter().sendPacket(stringBuilder.toString());
 	}
 
+	private static boolean isByteHello(byte[] dataBytes) {
+		if (dataBytes[3] == 0x06) {
+			return true;
+		}
+		return false;
+	}
+
 	private static byte[] parseHelloPacket(DataPacket dataPacket) throws Exception {
 		byte[] dataBytes = dataPacket.getDataBytes();
-		if (dataBytes[3] == 0x06) {
+		if (isByteHello(dataBytes)) {
 			byte[] helloPacket = { dataBytes[5], dataBytes[6], dataBytes[7], dataBytes[8] };
 			return helloPacket;
 		}
@@ -64,7 +90,7 @@ public class UdpHello {
 
 	private static byte parseSessionClientIdx(DataPacket dataPacket) throws Exception {
 		byte[] dataBytes = dataPacket.getDataBytes();
-		if (dataBytes[3] == 0x06) {
+		if (isByteHello(dataBytes)) {
 			return dataBytes[4];
 		}
 
@@ -79,7 +105,7 @@ public class UdpHello {
 
 	private static int parseSessionId(DataPacket dataPacket) throws Exception {
 		byte[] dataBytes = dataPacket.getDataBytes();
-		if (dataBytes[3] == 0x06) {
+		if (isByteHello(dataBytes)) {
 			byte[] sessionId = { dataBytes[9], dataBytes[10], dataBytes[11], dataBytes[12] };
 			return new BigInteger(sessionId).intValue();
 		}

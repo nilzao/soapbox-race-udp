@@ -12,10 +12,7 @@ public class UdpWriter {
 
 	private DatagramSocket serverSocket;
 
-	private DataPacket dataPacket;
-
 	public UdpWriter(DataPacket dataPacket) {
-		this.dataPacket = dataPacket;
 		address = dataPacket.getAddress();
 		port = dataPacket.getPort();
 		serverSocket = dataPacket.getServerSocket();
@@ -27,8 +24,8 @@ public class UdpWriter {
 
 	public void sendPacket(byte[] sendData) {
 		try {
+			sendData = Debug.debugSendPacket(sendData);
 			DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, address, port);
-			Debug.debugSendPacket(dataPacket);
 			serverSocket.send(sendPacket);
 		} catch (Exception e) {
 			e.printStackTrace();

@@ -6,8 +6,10 @@ public class PacketProcessor {
 
 	private int countA = 0;
 	private int countB = 0;
+	private int sessionFromClientIdx;
 
-	public byte[] getProcessed(byte[] data, int sessionClientIdx) {
+	public byte[] getProcessed(byte[] data, int sessionFromClientIdx) {
+		this.sessionFromClientIdx = sessionFromClientIdx;
 		byte[] dataTmp = isTypeA(data);
 		if (dataTmp != null) {
 			countA++;
@@ -44,12 +46,15 @@ public class PacketProcessor {
 	}
 
 	private byte[] transformStrTypeA(byte[] data) {
-		StringBuilder stringBuilder = new StringBuilder();
-		stringBuilder.append("pkg typeA num: [");
-		stringBuilder.append(countA);
-		stringBuilder.append("] ");
-		stringBuilder.append(new String(data));
-		return stringBuilder.toString().getBytes();
+		StringBuffer stringBuffer = new StringBuffer();
+		stringBuffer.append("from [");
+		stringBuffer.append(sessionFromClientIdx);
+		stringBuffer.append("] ");
+		stringBuffer.append("pkg typeA num: [");
+		stringBuffer.append(countA);
+		stringBuffer.append("] ");
+		stringBuffer.append(new String(data));
+		return stringBuffer.toString().getBytes();
 	}
 
 	private byte[] transformByteTypeA(byte[] data) {
