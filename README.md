@@ -1,19 +1,11 @@
-# soapbox-race-udp
+this branch is just for study.
 
-to build need apache maven and jdk8
+need to make:
 
-https://maven.apache.org/
+- "ping" time calc between first hello-from-srv packet and 
+  first packet after sessionId packet, 10 sec thread and send it to client.
+ 
+- count packets typeA, and typeB, inside UdpTalk.
 
-http://www.oracle.com/technetwork/java/javase/downloads/
+- class to transform packets typeA and typeB before broadcast.
 
-
-build:
-mvn clean verify
-
-###to run the server use:
-
-###java -jar soapbox-race-udp.jar port (optional)
-
-example:
-
-###java -jar soapbox-race-udp.jar 9998
