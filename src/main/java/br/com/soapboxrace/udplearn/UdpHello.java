@@ -9,16 +9,7 @@ public class UdpHello {
 			byte sessionClientIdx = parseSessionClientIdx(dataPacket);
 			int sessionId = parseSessionId(dataPacket);
 			UdpWriter udpWriter = new UdpWriter(dataPacket);
-			UdpSession udpSession = UdpSessions.get(sessionId);
-			if (udpSession == null) {
-				udpSession = new UdpSession(sessionId);
-				udpTalk = new UdpTalk(udpSession, sessionClientIdx, udpWriter);
-				udpSession.put(udpTalk);
-			} else {
-				udpTalk = new UdpTalk(udpSession, sessionClientIdx, udpWriter);
-				udpSession.put(udpTalk);
-			}
-			UdpSessions.addUdpTalk(udpTalk);
+			udpTalk = new UdpTalk(sessionClientIdx, sessionId, udpWriter);
 			System.out.println("hello msg: [" + new String(helloPacket) + "]");
 			sendWelcomeMsg(udpTalk);
 		} catch (Exception e) {
@@ -47,10 +38,6 @@ public class UdpHello {
 		stringBuilder.append("\n");
 		stringBuilder.append("\n");
 		udpTalk.getUdpWriter().sendPacket(stringBuilder.toString());
-	}
-
-	public DataPacket transformPacket(DataPacket dataPacket) {
-		return dataPacket;
 	}
 
 	private static byte[] parseHelloPacket(DataPacket dataPacket) throws Exception {

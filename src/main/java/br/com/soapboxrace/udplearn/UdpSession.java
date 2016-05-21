@@ -29,11 +29,8 @@ public class UdpSession {
 			Integer key = next.getKey();
 			if (udpTalk.getSessionClientIdx() != key) {
 				UdpTalk udpTalkTmp = next.getValue();
-				UdpWriter udpWriter = udpTalkTmp.getUdpWriter();
-				// DataPacket transformPacket =
-				// udpTalk.transformPacket(dataPacket);
 				DataPacket transformPacket = dataPacket;
-				udpWriter.sendPacket(transformPacket.getDataBytes());
+				udpTalkTmp.sendFrom(udpTalk, transformPacket.getDataBytes());
 			}
 		}
 	}

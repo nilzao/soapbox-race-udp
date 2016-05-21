@@ -12,10 +12,13 @@ public class UdpTalk {
 
 	private UdpWriter udpWriter;
 
-	public UdpTalk(UdpSession udpSession, byte sessionClientIdx, UdpWriter udpWriter) {
-		this.udpSession = udpSession;
+	private int sessionId;
+
+	public UdpTalk(byte sessionClientIdx, int sessionId, UdpWriter udpWriter) {
 		this.sessionClientIdx = sessionClientIdx;
+		this.sessionId = sessionId;
 		this.udpWriter = udpWriter;
+		this.udpSession = UdpSessions.addUdpTalk(this);
 	}
 
 	public UdpSession getUdpSession() {
@@ -35,10 +38,16 @@ public class UdpTalk {
 		return now - timeStart;
 	}
 
+	public void sendFrom(UdpTalk udpTalk, byte[] sendData) {
+		StringBuffer stringBuffer = new StringBuffer();
+		stringBuffer.append("from [");
+		stringBuffer.append(udpTalk.getSessionClientIdx());
+		stringBuffer.append("] ");
+		stringBuffer.append(new String(sendData));
+		getUdpWriter().sendPacket(stringBuffer.toString().getBytes());
+	}
+
 	public int getSessionId() {
-		if (udpSession != null) {
-			return udpSession.getSessionId();
-		}
-		return 0;
+		return sessionId;
 	}
 }
