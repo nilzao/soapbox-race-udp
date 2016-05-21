@@ -2,17 +2,15 @@ package br.com.soapboxrace.udp;
 
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
-import java.util.HashMap;
 
 public class UdpServer {
 
-	private static HashMap<Integer, UdpWriter> udpWriters = new HashMap<Integer, UdpWriter>();
-	private static DatagramSocket serverSocket;
+	private DatagramSocket serverSocket;
 
 	public UdpServer(int port) {
 		try {
 			serverSocket = new DatagramSocket(port);
-			UdpSrvReceive udpSrvReceive = new UdpSrvReceive();
+			UdpSrvReceive udpSrvReceive = new UdpSrvReceive(serverSocket);
 			udpSrvReceive.start();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -40,16 +38,21 @@ public class UdpServer {
 
 	private static class UdpSrvReceive extends Thread {
 
+		private DatagramSocket serverSocket;
+
+		public UdpSrvReceive(DatagramSocket serverSocket) {
+			this.serverSocket = serverSocket;
+		}
+
 		public void run() {
-			byte[] receiveData = new byte[512];
+			byte[] receiveData = new byte[2048];
 			DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
 			try {
 				while (true) {
 					serverSocket.receive(receivePacket);
-					UdpTalk udpTalk = UdpTalk.getUdpTalk(receivePacket);
-					if (udpTalk != null) {
-						udpTalk.processReceived(receivePacket);
-					}
+					DataPacket dataPacket = new DataPacket(serverSocket, receivePacket);
+					Debug.debugReceivePacket(dataPacket);
+					UdpHandler.handlePacket(dataPacket);
 					for (int i = 0; i < receiveData.length; i++) {
 						receiveData[i] = 0;
 					}
@@ -61,13 +64,4 @@ public class UdpServer {
 			}
 		}
 	}
-
-	public static HashMap<Integer, UdpWriter> getUdpWriters() {
-		return udpWriters;
-	}
-
-	public static DatagramSocket getServerSocket() {
-		return serverSocket;
-	}
-
 }

@@ -1,19 +1,49 @@
-# soapbox-race-udp
+this branch is just for study.
 
-to build need apache maven and jdk8
+how the protocol works.
 
-https://maven.apache.org/
+using netcat client
 
-http://www.oracle.com/technetwork/java/javase/downloads/
+    $ nc -u localhost 9998
 
+---
+1st send hello packet
 
-build:
-mvn clean verify
+    hello! sidx:X sid:YYY
+    
+    where X is user session index (0-9) and YYY is sessionId (integer 32k)
 
-###to run the server use:
+examples (user 1, 2 and 5 talking inside session 333) one netcat each
 
-###java -jar soapbox-race-udp.jar port (optional)
+    hello! sidx:1 sid:333
+    hello! sidx:2 sid:333
+    hello! sidx:5 sid:333
+---
+2nd send the sync packet before reachs 10 sec:
 
-example:
+    any text with "gogogo!"
 
-###java -jar soapbox-race-udp.jar 9998
+examples
+
+    we are here gogogo! for it!
+    gogogo!
+---
+testing packages counting
+
+msg:
+
+    any text with "msg:"
+
+examples:
+
+    msg: hello world!
+    we are talking "msg:" here
+
+ping:
+
+    any text with "ping:"
+
+examples:
+    
+    ping: hello there
+    we are ping: ing this
