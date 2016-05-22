@@ -13,3 +13,4 @@ hs_err_pid*
 target/
 .tern-project
 /target/
+/udp/
