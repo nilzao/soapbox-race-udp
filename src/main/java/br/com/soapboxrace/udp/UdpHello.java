@@ -106,7 +106,7 @@ public class UdpHello {
 	private static byte parseSessionNumberOfClients(DataPacket dataPacket) throws Exception {
 		byte[] dataBytes = dataPacket.getDataBytes();
 		if (isByteHello(dataBytes)) {
-			return dataBytes[14];
+			return dataBytes[13];
 		}
 		String dataString = dataPacket.getDataString();
 		dataString = dataString.trim();
