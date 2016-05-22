@@ -9,7 +9,6 @@ public class UdpTalk {
 	private byte sessionClientIdx;
 	private byte numberOfClients;
 	private long timeStart = 0;
-	private long pingTime = 0;
 	private UdpWriter udpWriter;
 	private int sessionId;
 	private byte[] incomeSyncPacket;
@@ -22,7 +21,6 @@ public class UdpTalk {
 		this.udpWriter = udpWriter;
 		this.numberOfClients = numberOfClients;
 		timeStart = new Date().getTime();
-		udpSession = UdpSessions.addUdpTalk(this);
 	}
 
 	private boolean isByteSync() {
@@ -38,17 +36,16 @@ public class UdpTalk {
 		stringBuilder.append("sync packet: [");
 		stringBuilder.append(incomePacket.trim());
 		stringBuilder.append("]\n");
-		stringBuilder.append("Session started time: [");
-		stringBuilder.append(getUdpSession().getDiffTime());
+		stringBuilder.append("Session [");
+		stringBuilder.append(udpSession.getSessionId());
+		stringBuilder.append("] started time: [");
+		stringBuilder.append(udpSession.getDiffTime());
 		stringBuilder.append("]\n");
-		stringBuilder.append("ping: [");
-		stringBuilder.append(pingTime);
-		stringBuilder.append("]\n\n");
 		return stringBuilder.toString().getBytes();
 	}
 
 	private byte pingCalc() {
-		long diffTime = getDiffTime();
+		long diffTime = udpSession.getDiffTime();
 		if (diffTime > 1000) {
 			return (byte) 0xff;
 		}
@@ -83,17 +80,14 @@ public class UdpTalk {
 	public void setIncomeSyncPacket(byte[] incomeSyncPacket) {
 		this.incomeSyncPacket = incomeSyncPacket;
 		isSyncStarted = true;
-		pingTime = getDiffTime();
+		udpSession = UdpSessions.addUdpTalk(this);
 		try {
 			sendFrom(this, getSyncPacket());
 		} catch (Exception e) {
 			System.err.println(e.getMessage());
+			e.printStackTrace();
 		}
-	}
-
-	private long getDiffTime() {
-		long now = new Date().getTime();
-		return now - timeStart;
+		udpSession.broadcastSyncPackets();
 	}
 
 	public void sendFrom(UdpTalk udpTalk, byte[] sendData) {

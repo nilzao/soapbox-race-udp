@@ -11,10 +11,9 @@ public class UdpHandler {
 				System.out.println("Client Accepted! [" + port + "]");
 				UdpTalkers.put(port, udpTalk);
 			}
+		} else if (!udpTalk.isSyncStarted()) {
+			UdpSync.startSync(udpTalk, dataPacket);
 		} else {
-			if (!udpTalk.isSyncStarted()) {
-				UdpSync.startSync(udpTalk, dataPacket);
-			}
 			UdpSession udpSession = udpTalk.getUdpSession();
 			udpSession.broadcast(udpTalk, dataPacket.getDataBytes());
 		}

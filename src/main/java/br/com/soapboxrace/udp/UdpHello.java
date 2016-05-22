@@ -14,8 +14,8 @@ public class UdpHello {
 			int sessionId = parseSessionId(dataPacket);
 			UdpWriter udpWriter = new UdpWriter(dataPacket);
 			udpTalk = new UdpTalk(sessionClientIdx, numberOfClients, sessionId, udpWriter);
-			UdpSyncThread udpSyncThread = new UdpSyncThread(udpTalk);
-			udpSyncThread.start();
+			// UdpSyncThread udpSyncThread = new UdpSyncThread(udpTalk);
+			// udpSyncThread.start();
 			if (isByteHello(dataPacket.getDataBytes())) {
 				sendWelcomeByteMsg(udpTalk, helloPacket);
 			} else {
@@ -49,11 +49,8 @@ public class UdpHello {
 		stringBuilder.append("\n");
 		stringBuilder.append("Welcome to udp server learning");
 		stringBuilder.append("\n");
-		stringBuilder.append("SessionID: ");
-		stringBuilder.append(udpTalk.getUdpSession().getSessionId());
-		stringBuilder.append("\n");
-		stringBuilder.append("SessionID started time: [");
-		stringBuilder.append(udpTalk.getUdpSession().getDiffTime());
+		stringBuilder.append("SessionID: [");
+		stringBuilder.append(udpTalk.getSessionId());
 		stringBuilder.append("]\n");
 		stringBuilder.append("Your Session Client Index: ");
 		stringBuilder.append(udpTalk.getSessionClientIdx());
@@ -63,7 +60,9 @@ public class UdpHello {
 		stringBuilder.append("\n");
 		stringBuilder.append("Please send your sessionStart packet");
 		stringBuilder.append("\n");
-		stringBuilder.append("you have 10 seconds to send some packets asap to detect your package loss, have fun!");
+		stringBuilder.append("Waiting all the [");
+		stringBuilder.append(udpTalk.getNumberOfClients());
+		stringBuilder.append("] clients join the session to start talking.");
 		stringBuilder.append("\n");
 		stringBuilder.append("\n");
 		udpTalk.getUdpWriter().sendPacket(stringBuilder.toString());
@@ -104,6 +103,21 @@ public class UdpHello {
 		throw new Exception("invalid session client index");
 	}
 
+	private static byte parseSessionNumberOfClients(DataPacket dataPacket) throws Exception {
+		byte[] dataBytes = dataPacket.getDataBytes();
+		if (isByteHello(dataBytes)) {
+			return dataBytes[14];
+		}
+		String dataString = dataPacket.getDataString();
+		dataString = dataString.trim();
+		if (dataString.contains("ncli:")) {
+			int indexOf = dataString.indexOf("ncli:");
+			String ncliStr = dataString.substring(indexOf + 5, indexOf + 6);
+			return Byte.valueOf(ncliStr);
+		}
+		throw new Exception("invalid number of clients");
+	}
+
 	private static int parseSessionId(DataPacket dataPacket) throws Exception {
 		byte[] dataBytes = dataPacket.getDataBytes();
 		if (isByteHello(dataBytes)) {
@@ -121,36 +135,4 @@ public class UdpHello {
 		throw new Exception("invalid session id");
 	}
 
-	private static byte parseSessionNumberOfClients(DataPacket dataPacket) throws Exception {
-		byte[] dataBytes = dataPacket.getDataBytes();
-		if (isByteHello(dataBytes)) {
-			return dataBytes[14];
-		}
-		String dataString = dataPacket.getDataString();
-		dataString = dataString.trim();
-		if (dataString.contains("ncli:")) {
-			int indexOf = dataString.indexOf("ncli:");
-			String ncliStr = dataString.substring(indexOf + 5, indexOf + 6);
-			return Byte.valueOf(ncliStr);
-		}
-		throw new Exception("invalid number of clients");
-	}
-
-	private static class UdpSyncThread extends Thread {
-
-		private UdpTalk udpTalk;
-
-		public UdpSyncThread(UdpTalk udpTalk) {
-			this.udpTalk = udpTalk;
-		}
-
-		public void run() {
-			try {
-				Thread.sleep(500);
-				udpTalk.getUdpSession().broadcastSyncPackets();
-			} catch (Exception e) {
-				System.out.println(e.getMessage());
-			}
-		}
-	}
 }
