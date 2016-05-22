@@ -7,6 +7,7 @@ public class UdpTalk {
 
 	private UdpSession udpSession = null;
 	private byte sessionClientIdx;
+	private byte numberOfClients;
 	private long timeStart = 0;
 	private long pingTime = 0;
 	private UdpWriter udpWriter;
@@ -15,10 +16,11 @@ public class UdpTalk {
 	private boolean isSyncStarted = false;
 	private PacketProcessor packetProcessor = new PacketProcessor();
 
-	public UdpTalk(byte sessionClientIdx, int sessionId, UdpWriter udpWriter) {
+	public UdpTalk(byte sessionClientIdx, byte numberOfClients, int sessionId, UdpWriter udpWriter) {
 		this.sessionClientIdx = sessionClientIdx;
 		this.sessionId = sessionId;
 		this.udpWriter = udpWriter;
+		this.numberOfClients = numberOfClients;
 		timeStart = new Date().getTime();
 		udpSession = UdpSessions.addUdpTalk(this);
 	}
@@ -119,6 +121,10 @@ public class UdpTalk {
 
 	public boolean isSyncStarted() {
 		return isSyncStarted;
+	}
+
+	public byte getNumberOfClients() {
+		return numberOfClients;
 	}
 
 }

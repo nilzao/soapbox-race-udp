@@ -10,9 +10,10 @@ public class UdpHello {
 		try {
 			byte[] helloPacket = parseHelloPacket(dataPacket);
 			byte sessionClientIdx = parseSessionClientIdx(dataPacket);
+			byte numberOfClients = parseSessionNumberOfClients(dataPacket);
 			int sessionId = parseSessionId(dataPacket);
 			UdpWriter udpWriter = new UdpWriter(dataPacket);
-			udpTalk = new UdpTalk(sessionClientIdx, sessionId, udpWriter);
+			udpTalk = new UdpTalk(sessionClientIdx, numberOfClients, sessionId, udpWriter);
 			UdpSyncThread udpSyncThread = new UdpSyncThread(udpTalk);
 			udpSyncThread.start();
 			if (isByteHello(dataPacket.getDataBytes())) {
@@ -118,6 +119,21 @@ public class UdpHello {
 			return Integer.valueOf(sessionIdStr);
 		}
 		throw new Exception("invalid session id");
+	}
+
+	private static byte parseSessionNumberOfClients(DataPacket dataPacket) throws Exception {
+		byte[] dataBytes = dataPacket.getDataBytes();
+		if (isByteHello(dataBytes)) {
+			return dataBytes[14];
+		}
+		String dataString = dataPacket.getDataString();
+		dataString = dataString.trim();
+		if (dataString.contains("ncli:")) {
+			int indexOf = dataString.indexOf("ncli:");
+			String ncliStr = dataString.substring(indexOf + 5, indexOf + 6);
+			return Byte.valueOf(ncliStr);
+		}
+		throw new Exception("invalid number of clients");
 	}
 
 	private static class UdpSyncThread extends Thread {

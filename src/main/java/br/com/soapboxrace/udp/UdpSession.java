@@ -10,11 +10,14 @@ public class UdpSession {
 	private HashMap<Integer, UdpTalk> udpTalkers = new HashMap<Integer, UdpTalk>();
 	private int sessionId;
 
+	private byte numberOfClients;
+
 	private long timeStart;
 
-	public UdpSession(int sessionId, long timeStart) {
+	public UdpSession(int sessionId, long timeStart, byte numberOfClients) {
 		this.sessionId = sessionId;
 		this.timeStart = timeStart;
+		this.numberOfClients = numberOfClients;
 	}
 
 	public int getSessionId() {
@@ -55,6 +58,10 @@ public class UdpSession {
 	public long getDiffTime() {
 		long now = new Date().getTime();
 		return now - timeStart;
+	}
+
+	public byte getNumberOfClients() {
+		return numberOfClients;
 	}
 
 }

@@ -11,7 +11,7 @@ public class UdpSessions {
 		UdpSession udpSession = udpSessions.get(sessionId);
 		if (udpSession == null) {
 			System.out.println("new session [" + udpTalk.getSessionId() + "] added to UdpSessions with UdpTalk");
-			udpSession = new UdpSession(sessionId, udpTalk.getTimeStart());
+			udpSession = new UdpSession(sessionId, udpTalk.getTimeStart(), udpTalk.getNumberOfClients());
 			udpSession.put(udpTalk);
 			put(udpSession);
 			return udpSession;
