@@ -51,7 +51,7 @@ public class UdpSession {
 				Entry<Integer, UdpTalk> next = iterator.next();
 				UdpTalk udpTalkTmp = next.getValue();
 				try {
-					byte[] syncPacket = udpTalkTmp.getSyncPacket();
+					byte[] syncPacket = udpTalkTmp.getFirstSessionPacket();
 					broadcastSyncPackets(udpTalkTmp, syncPacket);
 				} catch (Exception e) {
 					e.printStackTrace();

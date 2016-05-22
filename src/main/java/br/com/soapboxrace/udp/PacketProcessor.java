@@ -20,7 +20,7 @@ public class PacketProcessor {
 			countA++;
 			return dataTmp;
 		}
-		dataTmp = isTypeAStart(data);
+		dataTmp = isTypeASession(data);
 		if (dataTmp != null) {
 			countA++;
 			return dataTmp;
@@ -28,15 +28,24 @@ public class PacketProcessor {
 		return data;
 	}
 
-	private byte[] isTypeAStart(byte[] data) {
-		if (data.length == 25) {
+	private byte[] isTypeASession(byte[] data) {
+		data = transformByteTypeA(data);
+		if (data.length == 25 || data.length == 26) {
 			data[(data.length - 6)] = 0x03;
+			if (data.length == 26) {
+				data[(data.length - 11)] = sessionFromClientIdx;
+			}
 		}
 		return data;
 	}
 
 	private byte[] isTypeA(byte[] data) {
-		if (data[0] == 0 && data[3] == 7) {
+		if (data[0] == (byte) 0x00 && //
+				data[3] == (byte) 0x07 && //
+				data[9] != (byte) 0xff && //
+				data[10] != (byte) 0xff && //
+				data[11] != (byte) 0xff && //
+				data[12] != (byte) 0xff) {
 			return transformByteTypeA(data);
 		}
 		String string = new String(data);
