@@ -13,8 +13,11 @@ public class UdpTalk {
 	private byte[] firstSessionPacket;
 	private boolean isSyncStarted = false;
 	private PacketProcessor packetProcessor = new PacketProcessor();
+	private byte[] helloPacket;
 
-	public UdpTalk(byte sessionClientIdx, byte numberOfClients, int sessionId, UdpWriter udpWriter) {
+	public UdpTalk(byte[] helloPacket, byte sessionClientIdx, byte numberOfClients, int sessionId,
+			UdpWriter udpWriter) {
+		this.helloPacket = helloPacket;
 		this.sessionClientIdx = sessionClientIdx;
 		this.sessionId = sessionId;
 		this.udpWriter = udpWriter;
@@ -59,7 +62,18 @@ public class UdpTalk {
 		return firstSessionPacket;
 	}
 
+	// somehow, sometime at start, this package is broadcasted
+	// again changing pingCalc and packageLoss
 	public void setFirstSessionPacket(byte[] firstSessionPacket) {
+		firstSessionPacket = packetProcessor.getProcessed(firstSessionPacket, sessionClientIdx);
+		firstSessionPacket[4] = (byte) 0xa7;
+		// firstSessionPacket[5] = (byte) 0x00; // pingCalc
+		firstSessionPacket[6] = helloPacket[2];
+		// firstSessionPacket[7] = (byte) 0x00; // packageLoss??
+		firstSessionPacket[8] = (byte) 0x00;
+		firstSessionPacket[9] = (byte) 0x01;
+		firstSessionPacket[10] = (byte) 0x7f;
+		firstSessionPacket[11] = (byte) 0xff;
 		this.firstSessionPacket = firstSessionPacket;
 		isSyncStarted = true;
 		udpSession = UdpSessions.addUdpTalk(this);

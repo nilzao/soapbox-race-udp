@@ -29,12 +29,10 @@ public class PacketProcessor {
 	}
 
 	private byte[] isTypeASession(byte[] data) {
-		data = transformByteTypeA(data);
-		if (data.length == 25 || data.length == 26) {
+		if (data.length == 26) {
+			data = transformByteTypeA(data);
 			data[(data.length - 6)] = 0x03;
-			if (data.length == 26) {
-				data[(data.length - 11)] = sessionFromClientIdx;
-			}
+			data[(data.length - 11)] = sessionFromClientIdx;
 		}
 		return data;
 	}

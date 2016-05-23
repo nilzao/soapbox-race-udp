@@ -13,9 +13,7 @@ public class UdpHello {
 			byte numberOfClients = parseSessionNumberOfClients(dataPacket);
 			int sessionId = parseSessionId(dataPacket);
 			UdpWriter udpWriter = new UdpWriter(dataPacket);
-			udpTalk = new UdpTalk(sessionClientIdx, numberOfClients, sessionId, udpWriter);
-			// UdpSyncThread udpSyncThread = new UdpSyncThread(udpTalk);
-			// udpSyncThread.start();
+			udpTalk = new UdpTalk(helloPacket, sessionClientIdx, numberOfClients, sessionId, udpWriter);
 			if (isByteHello(dataPacket.getDataBytes())) {
 				sendWelcomeByteMsg(udpTalk, helloPacket);
 			} else {
