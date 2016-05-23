@@ -33,8 +33,9 @@ public class PacketProcessor {
 			data = transformByteTypeA(data);
 			data[(data.length - 6)] = 0x03;
 			data[(data.length - 11)] = sessionFromClientIdx;
+			return data;
 		}
-		return data;
+		return null;
 	}
 
 	private byte[] isTypeA(byte[] data) {
