@@ -45,14 +45,10 @@ public class UdpSession {
 
 	public void broadcastSyncPackets() {
 		if (isFull()) {
-			System.out.println("sending sync broadcast");
-			Iterator<Entry<Integer, UdpTalk>> iterator = udpTalkers.entrySet().iterator();
-			while (iterator.hasNext()) {
-				Entry<Integer, UdpTalk> next = iterator.next();
-				UdpTalk udpTalkTmp = next.getValue();
+			for (int i = 0; i < udpTalkers.size(); i++) {
+				UdpTalk udpTalk = udpTalkers.get(i);
 				try {
-					byte[] syncPacket = udpTalkTmp.getFirstSessionPacket();
-					broadcastSyncPackets(udpTalkTmp, syncPacket);
+					broadcastSyncPackets(udpTalk, udpTalk.getSyncPacket());
 				} catch (Exception e) {
 					e.printStackTrace();
 					System.err.println(e.getMessage());
