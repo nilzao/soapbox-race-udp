@@ -20,4 +20,6 @@ public interface IUdpTalk {
 
 	public byte getNumberOfClients();
 
+	public long getPing();
+
 }

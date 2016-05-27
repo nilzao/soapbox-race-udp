@@ -12,6 +12,8 @@ public abstract class UdpTalk implements IUdpTalk {
 
 	private long timeStart;
 
+	private long ping;
+
 	protected byte[] syncPacket;
 
 	protected boolean isSyncStarted;
@@ -70,8 +72,14 @@ public abstract class UdpTalk implements IUdpTalk {
 			parseSyncPacket();
 			UdpSessions.addUdpTalk(this);
 			isSyncStarted = true;
+			ping = getDiffTime();
 		} catch (Exception e) {
 			System.err.println(e.getMessage());
 		}
 	}
+
+	public long getPing() {
+		return ping;
+	}
+
 }
