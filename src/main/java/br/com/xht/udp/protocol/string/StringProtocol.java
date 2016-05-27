@@ -10,4 +10,9 @@ public class StringProtocol implements IUdpProtocol {
 		return new StringHello();
 	}
 
+	@Override
+	public int getPacketMaxSize() {
+		return 512;
+	}
+
 }

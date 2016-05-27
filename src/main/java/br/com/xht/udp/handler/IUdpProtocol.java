@@ -4,4 +4,6 @@ public interface IUdpProtocol {
 
 	public IUdpHello getNewHelloInstance();
 
+	public int getPacketMaxSize();
+
 }

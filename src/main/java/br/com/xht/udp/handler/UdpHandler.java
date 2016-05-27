@@ -4,6 +4,10 @@ public class UdpHandler {
 
 	private IUdpProtocol udpProtocol;
 
+	public int getPacketMaxSize() {
+		return udpProtocol.getPacketMaxSize();
+	}
+
 	public UdpHandler(IUdpProtocol udpProtocol) {
 		this.udpProtocol = udpProtocol;
 	}

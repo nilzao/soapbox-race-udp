@@ -10,4 +10,9 @@ public class SoapBoxProtocol implements IUdpProtocol {
 		return new SoapBoxHello();
 	}
 
+	@Override
+	public int getPacketMaxSize() {
+		return 2048;
+	}
+
 }
