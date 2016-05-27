@@ -2,7 +2,7 @@ package br.com.xht.udp.handler;
 
 import java.util.Date;
 
-public abstract class UdpTalk implements IUdpTalk {
+public abstract class UdpTalk implements IUdpTalk, Comparable<UdpTalk> {
 
 	private UdpWriter udpWriter;
 
@@ -82,4 +82,14 @@ public abstract class UdpTalk implements IUdpTalk {
 		return ping;
 	}
 
+	@Override
+	public int compareTo(UdpTalk udpTalk) {
+		if (ping < udpTalk.getPing()) {
+			return -1;
+		}
+		if (ping > udpTalk.getPing()) {
+			return 1;
+		}
+		return 0;
+	}
 }

@@ -1,8 +1,11 @@
 package br.com.xht.udp.handler;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map.Entry;
 
 public class UdpSession {
@@ -55,14 +58,35 @@ public class UdpSession {
 		}
 	}
 
-	private void broadcastSyncPackets(IUdpTalk udpTalk, byte[] dataPacket) {
+	private List<UdpTalk> getTalkersOrderedByPing() {
+		List<UdpTalk> talkersOrderedByPing = new ArrayList<UdpTalk>();
 		Iterator<Entry<Integer, IUdpTalk>> iterator = udpTalkers.entrySet().iterator();
 		while (iterator.hasNext()) {
 			Entry<Integer, IUdpTalk> next = iterator.next();
-			Integer key = next.getKey();
+			IUdpTalk udpTalkTmp = next.getValue();
+			talkersOrderedByPing.add((UdpTalk) udpTalkTmp);
+		}
+		UdpTalkPingComparator udpTalkPingComparator = new UdpTalkPingComparator();
+		Collections.sort(talkersOrderedByPing, udpTalkPingComparator);
+		return talkersOrderedByPing;
+	}
+
+	private void broadcastSyncPackets(IUdpTalk udpTalk, byte[] dataPacket) {
+		List<UdpTalk> talkersOrderedByPing = getTalkersOrderedByPing();
+		long higherPing = talkersOrderedByPing.get(0).getPing() + 10;
+		for (UdpTalk udpTalkTmp : talkersOrderedByPing) {
+			Integer key = (int) udpTalkTmp.getSessionClientIdx();
 			Integer sessionClientIdx = (int) udpTalk.getSessionClientIdx();
+			long waitTime = higherPing - udpTalkTmp.getPing();
 			if (!sessionClientIdx.equals(key)) {
-				IUdpTalk udpTalkTmp = next.getValue();
+				System.out.print("[" + udpTalkTmp.getSessionClientIdx());
+				System.out.print("] ping: [" + udpTalkTmp.getPing());
+				System.out.println("] waitTime: " + waitTime + "ms");
+				try {
+					Thread.sleep(waitTime);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
 				udpTalkTmp.sendFrom(udpTalk, dataPacket);
 			}
 		}
