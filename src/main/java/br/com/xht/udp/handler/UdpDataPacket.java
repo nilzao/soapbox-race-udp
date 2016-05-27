@@ -1,16 +1,16 @@
-package br.com.soapboxrace.udp;
+package br.com.xht.udp.handler;
 
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 
-public class DataPacket {
+public class UdpDataPacket {
 
 	private DatagramPacket receivePacket;
 	private DatagramSocket serverSocket;
 	private byte[] dataBytes;
 
-	public DataPacket(DatagramSocket serverSocket, DatagramPacket receivePacket) {
+	public UdpDataPacket(DatagramSocket serverSocket, DatagramPacket receivePacket) {
 		this.serverSocket = serverSocket;
 		this.receivePacket = receivePacket;
 		int length = receivePacket.getLength();

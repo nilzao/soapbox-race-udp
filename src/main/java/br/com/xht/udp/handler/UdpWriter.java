@@ -1,4 +1,4 @@
-package br.com.soapboxrace.udp;
+package br.com.xht.udp.handler;
 
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -12,19 +12,24 @@ public class UdpWriter {
 
 	private DatagramSocket serverSocket;
 
-	public UdpWriter(DataPacket dataPacket) {
+	private UdpDataPacket dataPacket;
+
+	public UdpWriter(UdpDataPacket dataPacket) {
+		this.dataPacket = dataPacket;
 		address = dataPacket.getAddress();
 		port = dataPacket.getPort();
 		serverSocket = dataPacket.getServerSocket();
 	}
 
-	public void sendPacket(String sendData) {
-		this.sendPacket(sendData.getBytes());
+	public void sendPacket(byte[] dataPacket) {
+		this.dataPacket.replaceDataBytes(dataPacket);
+		this.sendPacket(this.dataPacket);
 	}
 
-	public void sendPacket(byte[] sendData) {
+	public void sendPacket(UdpDataPacket dataPacket) {
 		try {
-			sendData = Debug.debugSendPacket(sendData);
+			byte[] sendData = dataPacket.getDataBytes();
+			UdpDebug.debugSendPacket(dataPacket);
 			DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, address, port);
 			serverSocket.send(sendPacket);
 		} catch (Exception e) {
@@ -34,6 +39,10 @@ public class UdpWriter {
 
 	public int getPort() {
 		return port;
+	}
+
+	public InetAddress getAddress() {
+		return address;
 	}
 
 }

@@ -1,10 +1,18 @@
-package br.com.soapboxrace.udp;
+package br.com.xht.udp.handler;
 
-public class Debug {
+public class UdpDebug {
 
 	private static boolean isDebugging = false;
 
-	public static void debugReceivePacket(DataPacket dataPacket) {
+	public static void startDebug() {
+		isDebugging = true;
+	}
+
+	public static void stopDebug() {
+		isDebugging = false;
+	}
+
+	public static void debugReceivePacket(UdpDataPacket dataPacket) {
 		if (isDebugging) {
 			if (isReadablePackets(dataPacket)) {
 				String string = dataPacket.getDataString();
@@ -20,7 +28,21 @@ public class Debug {
 		}
 	}
 
-	private static boolean isReadablePackets(DataPacket dataPacket) {
+	public static void debugSendPacket(UdpDataPacket dataPacket) {
+		if (isDebugging) {
+			byte[] dataBytes = dataPacket.getDataBytes();
+			if (isReadablePackets(dataBytes)) {
+				String string = new String(dataBytes);
+				System.out.println("Sending: [" + string.trim() + "]");
+			} else {
+				String byteArrayToHexString = "from-srv: {" + byteArrayToHexString(dataBytes) + "}\n";
+				System.out.println("Sending: [" + byteArrayToHexString.trim() + "]");
+				// dataPacket.replaceDataBytes(byteArrayToHexString.getBytes());
+			}
+		}
+	}
+
+	private static boolean isReadablePackets(UdpDataPacket dataPacket) {
 		byte[] dataBytes = dataPacket.getDataBytes();
 		return isReadablePackets(dataBytes);
 	}
@@ -32,22 +54,6 @@ public class Debug {
 			}
 		}
 		return true;
-	}
-
-	public static byte[] debugSendPacket(byte[] dataBytes) {
-		if (isDebugging) {
-			if (isReadablePackets(dataBytes)) {
-				String string = new String(dataBytes);
-				System.out.println("Sending: [" + string.trim() + "]");
-				return string.getBytes();
-			} else {
-				String byteArrayToHexString = "from-srv: {" + byteArrayToHexString(dataBytes) + "}\n";
-				System.out.println("Sending: [" + byteArrayToHexString.trim() + "]");
-				// return byteArrayToHexString.getBytes();
-				return dataBytes;
-			}
-		}
-		return dataBytes;
 	}
 
 	private static byte[] hexStringToByteArray(String s) {

@@ -1,4 +1,4 @@
-package br.com.soapboxrace.udp;
+package br.com.xht.udp.handler;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -7,13 +7,13 @@ import java.util.Map.Entry;
 
 public class UdpSession {
 
-	private HashMap<Integer, UdpTalk> udpTalkers = new HashMap<Integer, UdpTalk>();
+	private HashMap<Integer, IUdpTalk> udpTalkers = new HashMap<Integer, IUdpTalk>();
 	private int sessionId;
 	private byte numberOfClients;
 	private long timeStart;
 	private boolean isSyncDone = false;
 
-	public UdpSession(int sessionId, long timeStart, byte numberOfClients) {
+	public UdpSession(int sessionId, byte numberOfClients, long timeStart) {
 		this.sessionId = sessionId;
 		this.timeStart = timeStart;
 		this.numberOfClients = numberOfClients;
@@ -23,20 +23,20 @@ public class UdpSession {
 		return sessionId;
 	}
 
-	public void put(UdpTalk udpTalk) {
+	public void put(IUdpTalk udpTalk) {
 		int clientSessionIdx = (int) udpTalk.getSessionClientIdx();
 		udpTalkers.put(clientSessionIdx, udpTalk);
 	}
 
-	public void broadcast(UdpTalk udpTalk, byte[] dataPacket) {
+	public void broadcast(IUdpTalk udpTalk, byte[] dataPacket) {
 		if (isSyncDone) {
-			Iterator<Entry<Integer, UdpTalk>> iterator = udpTalkers.entrySet().iterator();
+			Iterator<Entry<Integer, IUdpTalk>> iterator = udpTalkers.entrySet().iterator();
 			while (iterator.hasNext()) {
-				Entry<Integer, UdpTalk> next = iterator.next();
+				Entry<Integer, IUdpTalk> next = iterator.next();
 				Integer key = next.getKey();
 				Integer sessionClientIdx = (int) udpTalk.getSessionClientIdx();
 				if (!sessionClientIdx.equals(key)) {
-					UdpTalk udpTalkTmp = next.getValue();
+					IUdpTalk udpTalkTmp = next.getValue();
 					udpTalkTmp.sendFrom(udpTalk, dataPacket);
 				}
 			}
@@ -45,27 +45,24 @@ public class UdpSession {
 
 	public void broadcastSyncPackets() {
 		if (isFull()) {
-			for (int i = 0; i < udpTalkers.size(); i++) {
-				UdpTalk udpTalk = udpTalkers.get(i);
-				try {
-					broadcastSyncPackets(udpTalk, udpTalk.getSyncPacket());
-				} catch (Exception e) {
-					e.printStackTrace();
-					System.err.println(e.getMessage());
-				}
+			Iterator<Entry<Integer, IUdpTalk>> iterator = udpTalkers.entrySet().iterator();
+			while (iterator.hasNext()) {
+				Entry<Integer, IUdpTalk> next = iterator.next();
+				IUdpTalk udpTalkTmp = next.getValue();
+				broadcastSyncPackets(udpTalkTmp, udpTalkTmp.getSyncPacket());
 			}
 			isSyncDone = true;
 		}
 	}
 
-	private void broadcastSyncPackets(UdpTalk udpTalk, byte[] dataPacket) {
-		Iterator<Entry<Integer, UdpTalk>> iterator = udpTalkers.entrySet().iterator();
+	private void broadcastSyncPackets(IUdpTalk udpTalk, byte[] dataPacket) {
+		Iterator<Entry<Integer, IUdpTalk>> iterator = udpTalkers.entrySet().iterator();
 		while (iterator.hasNext()) {
-			Entry<Integer, UdpTalk> next = iterator.next();
+			Entry<Integer, IUdpTalk> next = iterator.next();
 			Integer key = next.getKey();
 			Integer sessionClientIdx = (int) udpTalk.getSessionClientIdx();
 			if (!sessionClientIdx.equals(key)) {
-				UdpTalk udpTalkTmp = next.getValue();
+				IUdpTalk udpTalkTmp = next.getValue();
 				udpTalkTmp.sendFrom(udpTalk, dataPacket);
 			}
 		}
@@ -80,7 +77,7 @@ public class UdpSession {
 		return numberOfClients;
 	}
 
-	public boolean isFull() {
+	private boolean isFull() {
 		return udpTalkers.size() == numberOfClients;
 	}
 
