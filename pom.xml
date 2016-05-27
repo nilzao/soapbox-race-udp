@@ -22,7 +22,7 @@
         <configuration>
           <archive>
             <manifest>
-              <mainClass>br.com.soapboxrace.udp.UdpServer</mainClass>
+              <mainClass>br.com.xht.udp.servers.SoapBoxServer</mainClass>
             </manifest>
           </archive>
         </configuration>
