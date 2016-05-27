@@ -60,4 +60,9 @@ public class SoapBoxHello extends UdpHello {
 		return byteBuffer.array();
 	}
 
+	@Override
+	public byte[] getHelloPacket() {
+		return helloPacketTmp;
+	}
+
 }

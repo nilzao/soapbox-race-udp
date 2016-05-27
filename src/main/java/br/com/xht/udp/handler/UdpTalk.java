@@ -82,6 +82,10 @@ public abstract class UdpTalk implements IUdpTalk, Comparable<UdpTalk> {
 		return ping;
 	}
 
+	protected byte[] getHelloPacket() {
+		return udpHello.getHelloPacket();
+	}
+
 	@Override
 	public int compareTo(UdpTalk udpTalk) {
 		if (ping < udpTalk.getPing()) {

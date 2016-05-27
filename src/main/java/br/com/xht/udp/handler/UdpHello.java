@@ -59,4 +59,8 @@ public abstract class UdpHello implements IUdpHello {
 		return sessionId;
 	}
 
+	public byte[] getHelloPacket() {
+		return helloPacket;
+	}
+
 }

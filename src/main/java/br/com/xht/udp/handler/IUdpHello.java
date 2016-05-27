@@ -10,4 +10,6 @@ public interface IUdpHello {
 
 	public int getSessionId();
 
+	public byte[] getHelloPacket();
+
 }

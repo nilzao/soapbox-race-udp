@@ -47,7 +47,7 @@ public class UdpSession {
 	}
 
 	public void broadcastSyncPackets() {
-		if (isFull()) {
+		if (isFull() && isSyncDone == false) {
 			Iterator<Entry<Integer, IUdpTalk>> iterator = udpTalkers.entrySet().iterator();
 			while (iterator.hasNext()) {
 				Entry<Integer, IUdpTalk> next = iterator.next();
@@ -55,6 +55,9 @@ public class UdpSession {
 				broadcastSyncPackets(udpTalkTmp, udpTalkTmp.getSyncPacket());
 			}
 			isSyncDone = true;
+			// UdpSendSyncPacket udpSendSyncPacket = new
+			// UdpSendSyncPacket(this);
+			// udpSendSyncPacket.start();
 		}
 	}
 
@@ -73,20 +76,21 @@ public class UdpSession {
 
 	private void broadcastSyncPackets(IUdpTalk udpTalk, byte[] dataPacket) {
 		List<UdpTalk> talkersOrderedByPing = getTalkersOrderedByPing();
-		long higherPing = talkersOrderedByPing.get(0).getPing() + 10;
+		// long higherPing = talkersOrderedByPing.get(0).getPing() + 10;
 		for (UdpTalk udpTalkTmp : talkersOrderedByPing) {
 			Integer key = (int) udpTalkTmp.getSessionClientIdx();
 			Integer sessionClientIdx = (int) udpTalk.getSessionClientIdx();
-			long waitTime = higherPing - udpTalkTmp.getPing();
+			// long waitTime = higherPing - udpTalkTmp.getPing();
 			if (!sessionClientIdx.equals(key)) {
-				System.out.print("[" + udpTalkTmp.getSessionClientIdx());
-				System.out.print("] ping: [" + udpTalkTmp.getPing());
-				System.out.println("] waitTime: " + waitTime + "ms");
-				try {
-					Thread.sleep(waitTime);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
+				// trying to sync first session packet... failed
+				// System.out.print("[" + udpTalkTmp.getSessionClientIdx());
+				// System.out.print("] ping: [" + udpTalkTmp.getPing());
+				// System.out.println("] waitTime: " + waitTime + "ms\n\n");
+				// try {
+				// Thread.sleep(waitTime);
+				// } catch (Exception e) {
+				// e.printStackTrace();
+				// }
 				udpTalkTmp.sendFrom(udpTalk, dataPacket);
 			}
 		}
@@ -104,5 +108,24 @@ public class UdpSession {
 	private boolean isFull() {
 		return udpTalkers.size() == numberOfClients;
 	}
+
+	// private static class UdpSendSyncPacket extends Thread {
+	//
+	// private UdpSession udpSession;
+	//
+	// public UdpSendSyncPacket(UdpSession udpSession) {
+	// this.udpSession = udpSession;
+	// }
+	//
+	// public void run() {
+	// try {
+	// Thread.sleep(500);
+	// udpSession.broadcastSyncPackets();
+	// udpSession.isSyncDone = true;
+	// } catch (Exception e) {
+	// e.printStackTrace();
+	// }
+	// }
+	// }
 
 }
