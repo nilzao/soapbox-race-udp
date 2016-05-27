@@ -34,11 +34,6 @@ public class SoapBoxTalk extends UdpTalk {
 	@Override
 	public byte[] getSyncPacket() {
 		byte[] pingSyncPacket = syncPacket;
-		// pingSyncPacket[6] = pingCalc();
-		// pingSyncPacket[8] = (byte) 0x01;
-		// pingSyncPacket[9] = (byte) 0x7f;
-		// pingSyncPacket[10] = (byte) 0xff;
-		// pingSyncPacket[14] = (byte) 0x00; // from session client Index
 		pingSyncPacket[(pingSyncPacket.length - 6)] = 0x03;
 		return pingSyncPacket;
 	}

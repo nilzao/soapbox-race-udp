@@ -12,6 +12,7 @@ public class SoapBoxPacketProcessor implements IPacketProcessor {
 
 	@Override
 	public byte[] getProcessed(byte[] data, byte sessionFromClientIdx) {
+		this.sessionFromClientIdx = sessionFromClientIdx;
 		if (isTypeB(data)) {
 			return transformByteTypeB(data);
 		}
