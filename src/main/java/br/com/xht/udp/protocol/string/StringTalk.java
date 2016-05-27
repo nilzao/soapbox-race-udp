@@ -14,6 +14,14 @@ public class StringTalk extends UdpTalk {
 	}
 
 	@Override
+	protected void parseSyncPacket() throws Exception {
+		syncPacketStr = new String(syncPacket).trim();
+		if (!syncPacketStr.contains("gogogo!")) {
+			throw new Exception("invalid sync packet");
+		}
+	}
+
+	@Override
 	public byte[] getSyncPacket() {
 		String incomePacket = new String(syncPacketStr);
 		StringBuilder stringBuilder = new StringBuilder();
@@ -26,14 +34,6 @@ public class StringTalk extends UdpTalk {
 		stringBuilder.append(getDiffTime());
 		stringBuilder.append("]\n");
 		return stringBuilder.toString().getBytes();
-	}
-
-	@Override
-	protected void parseSyncPacket() throws Exception {
-		syncPacketStr = new String(syncPacket).trim();
-		if (!syncPacketStr.contains("gogogo!")) {
-			throw new Exception("invalid sync packet");
-		}
 	}
 
 }
