@@ -49,8 +49,10 @@ public class SoapBoxPacketProcessor implements IPacketProcessor {
 
 	private byte[] transformByteTypeA(byte[] data) {
 		if (data.length == 22) {
-			syncStopped = true;
-			// return null;
+			if (!syncStopped) {
+				syncStopped = true;
+				return null;
+			}
 		}
 		byte[] seqArray = ByteBuffer.allocate(2).putShort((short) countA).array();
 		int size = data.length - 1;
