@@ -27,7 +27,9 @@ public abstract class UdpTalk implements IUdpTalk, Comparable<UdpTalk> {
 
 	public void sendFrom(IUdpTalk udpTalk, byte[] dataPacket) {
 		byte[] processed = packetProcessor.getProcessed(dataPacket, udpTalk.getSessionClientIdx());
-		udpWriter.sendPacket(processed);
+		if (processed != null) {
+			udpWriter.sendPacket(processed);
+		}
 	}
 
 	protected abstract void parseSyncPacket() throws Exception;

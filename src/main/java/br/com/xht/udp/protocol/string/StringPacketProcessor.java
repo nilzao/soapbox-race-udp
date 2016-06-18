@@ -9,4 +9,14 @@ public class StringPacketProcessor implements IPacketProcessor {
 		return data;
 	}
 
+	@Override
+	public void syncStopped() {
+		// nothing
+	}
+
+	@Override
+	public boolean isSyncStopped() {
+		return false;
+	}
+
 }
