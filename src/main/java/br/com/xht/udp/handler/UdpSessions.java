@@ -11,14 +11,13 @@ public class UdpSessions {
 		UdpSession udpSession = udpSessions.get(sessionId);
 		if (udpSession == null) {
 			System.out.println("new session [" + udpTalk.getSessionId() + "] added to UdpSessions with UdpTalk");
-			udpSession = new UdpSession(udpTalk.getSessionId(), udpTalk.getNumberOfClients(), udpTalk.getTimeStart());
+			udpSession = new UdpSession(udpTalk.getSessionId());
 			udpSession.put(udpTalk);
 			put(udpSession);
 			return udpSession;
 		}
 		udpSession.put(udpTalk);
 		System.out.println("returning [" + udpTalk.getSessionId() + "] from UdpSessions with one more UdpTalk");
-		udpSession.broadcastSyncPackets();
 		return udpSession;
 	}
 

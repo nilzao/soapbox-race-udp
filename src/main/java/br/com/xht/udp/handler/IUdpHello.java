@@ -4,7 +4,7 @@ public interface IUdpHello {
 
 	public IUdpTalk startTalk(UdpDataPacket dataPacket);
 
-	public byte getSessionClientIdx();
+	public int getPersonaId();
 
 	public byte getNumberOfClients();
 

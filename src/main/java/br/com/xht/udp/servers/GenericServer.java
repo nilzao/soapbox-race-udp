@@ -5,8 +5,8 @@ import br.com.xht.udp.handler.UdpServer;
 
 public class GenericServer {
 	public static void main(String[] args) {
-		int port = 9998;
-		String protocol = "br.com.xht.udp.protocol.soapbox.SoapBoxProtocol";
+		int port = 9999;
+		String protocol = "br.com.xht.udp.protocol.soapbox.freeroam.SoapBoxProtocol";
 		if (args.length > 0 && args.length != 2) {
 			return;
 		} else if (args.length == 2) {

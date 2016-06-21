@@ -16,8 +16,6 @@ public class UdpHandler {
 		IUdpTalk udpTalk = UdpTalkers.get(dataPacket.getPort());
 		if (udpTalk == null) {
 			udpTalk = this.startTalk(dataPacket);
-		} else if (!udpTalk.isSyncStarted()) {
-			UdpSync.startSync(udpTalk, dataPacket);
 		} else {
 			udpTalk.broadcast(dataPacket.getDataBytes());
 		}

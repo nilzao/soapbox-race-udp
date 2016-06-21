@@ -17,10 +17,10 @@ public class UdpDebug {
 			if (isReadablePackets(dataPacket)) {
 				String string = dataPacket.getDataString();
 				System.out.println("from: [" + dataPacket.getPort() + "] Receiving: [" + string.trim() + "]");
-				if (string.contains("01:01:01:01:")) {
+//				if (string.contains("01:01:01:01:")) {
 					byte[] hexStringToByteArray = hexStringToByteArray(string.trim());
 					dataPacket.replaceDataBytes(hexStringToByteArray);
-				}
+//				}
 			} else {
 				System.out.println("from: [" + dataPacket.getPort() + "] Receiving: ["
 						+ byteArrayToHexString(dataPacket.getDataBytes()) + "]");

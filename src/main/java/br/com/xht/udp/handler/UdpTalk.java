@@ -16,8 +16,6 @@ public abstract class UdpTalk implements IUdpTalk, Comparable<UdpTalk> {
 
 	protected byte[] syncPacket;
 
-	protected boolean isSyncStarted;
-
 	public UdpTalk(IUdpHello udpHello, IPacketProcessor packetProcessor, UdpWriter udpWriter) {
 		this.timeStart = new Date().getTime();
 		this.udpHello = udpHello;
@@ -26,15 +24,9 @@ public abstract class UdpTalk implements IUdpTalk, Comparable<UdpTalk> {
 	}
 
 	public void sendFrom(IUdpTalk udpTalk, byte[] dataPacket) {
-		byte[] processed = packetProcessor.getProcessed(dataPacket, udpTalk.getSessionClientIdx());
+		byte[] processed = packetProcessor.getProcessed(dataPacket);
 		if (processed != null) {
 			udpWriter.sendPacket(processed);
-		} else if (packetProcessor.isSyncStopped()) {
-			// byte[] syncPacket = getSyncPacket();
-			// processed = packetProcessor.getProcessed(syncPacket,
-			// udpTalk.getSessionClientIdx());
-			// udpWriter.sendPacket(processed);
-			// broadcast(processed);
 		}
 	}
 
@@ -42,14 +34,6 @@ public abstract class UdpTalk implements IUdpTalk, Comparable<UdpTalk> {
 
 	protected IPacketProcessor getPacketProcessor() {
 		return packetProcessor;
-	}
-
-	public byte getSessionClientIdx() {
-		return udpHello.getSessionClientIdx();
-	}
-
-	public boolean isSyncStarted() {
-		return isSyncStarted;
 	}
 
 	public int getSessionId() {
@@ -74,24 +58,16 @@ public abstract class UdpTalk implements IUdpTalk, Comparable<UdpTalk> {
 		udpSession.broadcast(this, dataPacket);
 	}
 
-	public void setIncomeSyncPacket(byte[] syncPacket) {
-		this.syncPacket = syncPacket;
-		try {
-			parseSyncPacket();
-			UdpSessions.addUdpTalk(this);
-			isSyncStarted = true;
-			ping = getDiffTime();
-		} catch (Exception e) {
-			System.err.println(e.getMessage());
-		}
-	}
-
 	public long getPing() {
 		return ping;
 	}
 
 	protected byte[] getHelloPacket() {
 		return udpHello.getHelloPacket();
+	}
+
+	public int getPersonaId() {
+		return udpHello.getPersonaId();
 	}
 
 	@Override
